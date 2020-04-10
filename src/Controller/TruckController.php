@@ -25,12 +25,13 @@ class TruckController extends AbstractController
      * @Route("/truck", name="addTruck", methods={"POST"})
      */
     public function addTruck(Request $request){
-        $newtruck= new Truck();
 
+        $newtruck= new Truck();
         $newtruck->setNumberplate();
         $newtruck->addCode();
         $newtruck->setHomeagency();
         $newtruck->setType();
+        $newtruck->setActivity();
         return new Response("addTruck", 200);
 
     }

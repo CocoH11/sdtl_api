@@ -27,6 +27,7 @@ class HomeagencyFixture extends Fixture
         foreach ($dataHomeagencies as $homeagency){
             $newHomeagency=new Homeagency();
             $newHomeagency->setName($homeagency["name"]);
+            $manager->persist($newHomeagency);
         }
 
         $manager->flush();
