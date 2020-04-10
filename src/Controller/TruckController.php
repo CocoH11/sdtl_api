@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Code;
 use App\Entity\Truck;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,12 +27,16 @@ class TruckController extends AbstractController
      */
     public function addTruck(Request $request){
 
+        $newCode= new Code();
+        $newCode->setCode("134567YJTTFVGC");
+        $newCode->setSystem();
+
         $newtruck= new Truck();
-        $newtruck->setNumberplate();
+        $newtruck->setNumberplate(12345);
         $newtruck->addCode();
-        $newtruck->setHomeagency();
-        $newtruck->setType();
-        $newtruck->setActivity();
+        $newtruck->setHomeagency(1);
+        $newtruck->setType(1);
+        $newtruck->setActivity(1);
         return new Response("addTruck", 200);
 
     }
