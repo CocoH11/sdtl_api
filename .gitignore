@@ -9,3 +9,4 @@
 /vendor/
 ###< symfony/framework-bundle ###
 /.idea/
+Supprimerait config/packages/security.yaml

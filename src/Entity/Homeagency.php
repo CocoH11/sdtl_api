@@ -33,16 +33,11 @@ class Homeagency
      */
     private $integrationmodels;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="homeagency")
-     */
-    private $users;
 
     public function __construct()
     {
         $this->trucks = new ArrayCollection();
         $this->integrationmodels = new ArrayCollection();
-        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,37 +109,6 @@ class Homeagency
     {
         if ($this->integrationmodels->contains($integrationmodel)) {
             $this->integrationmodels->removeElement($integrationmodel);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setHomeagency($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            // set the owning side to null (unless already changed)
-            if ($user->getHomeagency() === $this) {
-                $user->setHomeagency(null);
-            }
         }
 
         return $this;

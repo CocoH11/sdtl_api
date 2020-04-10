@@ -46,9 +46,15 @@ class Truck
      */
     private $codes;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Refuel", mappedBy="truck")
+     */
+    private $refuels;
+
     public function __construct()
     {
         $this->codes = new ArrayCollection();
+        $this->refuels = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,6 +135,37 @@ class Truck
             // set the owning side to null (unless already changed)
             if ($code->getTruck() === $this) {
                 $code->setTruck(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Refuel[]
+     */
+    public function getRefuels(): Collection
+    {
+        return $this->refuels;
+    }
+
+    public function addRefuel(Refuel $refuel): self
+    {
+        if (!$this->refuels->contains($refuel)) {
+            $this->refuels[] = $refuel;
+            $refuel->setTruck($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRefuel(Refuel $refuel): self
+    {
+        if ($this->refuels->contains($refuel)) {
+            $this->refuels->removeElement($refuel);
+            // set the owning side to null (unless already changed)
+            if ($refuel->getTruck() === $this) {
+                $refuel->setTruck(null);
             }
         }
 
