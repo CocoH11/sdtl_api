@@ -73,10 +73,27 @@ class RefuelController extends AbstractController
     }
 
     /**
-     * @Route("/refuel", name="updateRefuel", methods={"PATCH"})
+     * @Route("/refuel/{id}", name="updateRefuel", methods={"PATCH"})
      */
     public function updateRefuel(Request $request,int $id){
-
+        $data=json_decode($request->getContent(), true);
+        //Doctrine
+        $doctrine=$this->getDoctrine();
+        $refuel=$doctrine->getRepository(Refuel::class)->find($id);
+        if ($data["refuel"]["volume"])$refuel->setVolume($data["refuel"]["volume"]);
+        if ($data["refuel"]["truck"]){
+            $truck=$doctrine->getRepository(Truck::class)->find($data["refuel"]["truck"]);
+            $refuel->setTruck($truck);
+        }
+        if ($data["refuel"]["driver"]) {
+            var_dump($data["refuel"]["driver"]);
+            $driver = $doctrine->getRepository(Driver::class)->find($data["refuel"]["driver"]);
+            $refuel->setDriver($driver);
+        }else{
+            $refuel->setDriver(null);
+        }
+        $doctrine->getManager()->flush();
+        return new Response("", 200);
     }
 
 }
