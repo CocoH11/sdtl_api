@@ -12,8 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class TruckController extends AbstractController
 {
@@ -52,6 +50,44 @@ class TruckController extends AbstractController
 
     }
 
+    /**
+     * @Route("/trucks", name="addTrucks", methods={"PUT"})
+     */
+    public function addTrucks(Request $request){
+        $data=json_decode($request->getContent(), true);
+        //var_dump($data);
+        //Doctrine
+        $doctrine=$this->getDoctrine();
+
+        foreach ($data["hello"] as $truck){
+            $type=$doctrine->getRepository(Type::class)->find($truck["type"]);
+            $homeagency=$doctrine->getRepository(Homeagency::class)->find($truck["homeagency"]);
+            $activity=$doctrine->getRepository(Activity::class)->find($truck["activity"]);
+
+            $newtruck= new Truck();
+            $newtruck
+                ->setNumberplate($truck["numberplate"])
+                ->setHomeagency($homeagency)
+                ->setType($type)
+                ->setActivity($activity)
+            ;
+            //Codes
+            foreach ($truck["codes"] as $code){
+                $system=$doctrine->getRepository(System::class)->find($code["system"]);
+                $newCode= new Code();
+                $newCode
+                    ->setCode($code["code"])
+                    ->setSystem($system)
+                ;
+                $newtruck->addCode($newCode);
+                $doctrine->getManager()->persist($newCode);
+            }
+            $doctrine->getManager()->persist($newtruck);
+        }
+        $doctrine->getManager()->flush();
+        return new Response("", 200);
+    }
+
 
     /**
      * @Route("truck/{id}", name="deleteTruck", methods={"DELETE"})
@@ -82,8 +118,4 @@ class TruckController extends AbstractController
 
         return new Response("updateTruck", 200);
     }
-
-
-
-
 }
