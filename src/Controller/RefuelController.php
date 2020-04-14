@@ -58,13 +58,19 @@ class RefuelController extends AbstractController
         $doctrine=$this->getDoctrine();
 
         foreach ($data["refuels"] as $refuel){
+            if ($refuel["driver"]){
+                $driver=$doctrine->getRepository(Driver::class)->find($refuel["driver"]);
+            }else $driver=null;
+            $truck=$doctrine->getRepository(Truck::class)->find($refuel["truck"]);
             $newRefuel= new Refuel();
             $newRefuel
                 ->setVolume($refuel["volume"])
-                ->setDriver($refuel["driver"])
-                ->setTruck($refuel["truck"])
+                ->setTruck($truck);
+            if ($driver){
+                $newRefuel->setDriver($driver);
+            }
             ;
-            $doctrine->getManager()->persist($refuel);
+            $doctrine->getManager()->persist($newRefuel);
         }
         $doctrine->getManager()->flush();
         return new Response("", 200);
