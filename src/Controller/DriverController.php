@@ -12,17 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DriverController extends AbstractController
 {
     /**
-     * @Route("/driver", name="driver", methods={"GET"})
-     */
-    public function index()
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/DriverController.php',
-        ]);
-    }
-
-    /**
      * @Route("/driver", name="addDriver", methods={"PUT"})
      */
     public function addDriver(Request $request){

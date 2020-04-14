@@ -13,17 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class RefuelController extends AbstractController
 {
     /**
-     * @Route("/refuel", name="refuel", methods={"GET"})
-     */
-    public function index()
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/RefuelController.php',
-        ]);
-    }
-
-    /**
      * @Route("/refuel", name="addRefuel", methods={"PUT"})
      */
     public function addRefuel(Request $request){

@@ -17,17 +17,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class TruckController extends AbstractController
 {
-    /*/**
-     * @Route("/truck", name="truck")
-     */
-    /*public function index()
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/TruckController.php',
-        ]);
-    }
-*/
     /**
      * @Route("/truck", name="addTruck", methods={"PUT"})
      */
@@ -47,11 +36,11 @@ class TruckController extends AbstractController
             ->setActivity($activity)
         ;
         //Codes
-        for($i=0; $i<sizeof($data["codes"]); $i++){
-            $system=$doctrine->getRepository(System::class)->find($data["codes"][$i]["system"]);
+        foreach ($data["codes"] as $code){
+            $system=$doctrine->getRepository(System::class)->find($code["system"]);
             $newCode= new Code();
             $newCode
-                ->setCode($data["codes"][$i]["code"])
+                ->setCode($code["code"])
                 ->setSystem($system)
             ;
             $newtruck->addCode($newCode);
