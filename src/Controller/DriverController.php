@@ -30,6 +30,27 @@ class DriverController extends AbstractController
     }
 
     /**
+     * @Route("/drivers", name="addDrivers", methods={"PUT"})
+     */
+    public function addDrivers(Request $request){
+        $data=json_decode($request->getContent(), true);
+
+        //Doctrine
+        $doctrine=$this->getDoctrine();
+
+        foreach ($data["drivers"] as $driver){
+            $newdriver=new Driver();
+            $newdriver
+                ->setName($driver["name"])
+                ->setFirstname($driver["firstname"])
+            ;
+            $doctrine->getManager()->persist($newdriver);
+        }
+        $doctrine->getManager()->flush();
+        return new Response("", 200);
+    }
+
+    /**
      * @Route("/driver/{id}", name="deleteDriver", methods={"DELETE"})
      */
     public function deleteDriver(Request $request, $id){
