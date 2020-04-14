@@ -95,5 +95,4 @@ class RefuelController extends AbstractController
         $doctrine->getManager()->flush();
         return new Response("", 200);
     }
-
 }
