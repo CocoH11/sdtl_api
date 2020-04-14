@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Driver;
 use PhpParser\Node\Expr\List_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,9 +32,10 @@ class DriverController extends AbstractController
         if (count($errors) > 0) {
 
             foreach ($errors as $error){
-                array_push($errorsmessages, $error->getMessage());
+                array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
             }
-            return new Response(implode("/", $errorsmessages));
+            $data=json_encode($errorsmessages);
+            return new JsonResponse($errorsmessages, 200);
         }
         $doctrine->getManager()->persist($newdriver);
         $doctrine->getManager()->flush();
