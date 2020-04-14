@@ -22,6 +22,7 @@ class Type
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="le nom fourni n'est pas valide")
      */
     private $name;
 

@@ -22,18 +22,11 @@ class Truck
 
     /**
      * @ORM\Column(type="string", length=255)
-     */
-    private $numberplate;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Type", inversedBy="trucks")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $type;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="trucks")
-     * @ORM\JoinColumn(nullable=false)
+     * @Assert\Length(
+     *     allowEmptyString=false
+     *     min=7
+     *     max=7
+     *     exactMessage="Le numéro de plaque fourni n'est pas valide"
      */
     private $homeagency;
 

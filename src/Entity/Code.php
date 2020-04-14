@@ -20,6 +20,7 @@ class Code
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le code fourni n'est pas valide")
      */
     private $code;
 

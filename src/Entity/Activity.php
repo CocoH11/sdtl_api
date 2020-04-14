@@ -21,6 +21,7 @@ class Activity
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom fourni est invalide")
      */
     private $name;
 

@@ -21,13 +21,13 @@ class Driver
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @Assert\NotBlank(message="Le nom du chauffeur n'est pas valide")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @Assert\NotBlank(message="Le prénom du chauffeur n'est pas valide")
      */
     private $firstname;
 

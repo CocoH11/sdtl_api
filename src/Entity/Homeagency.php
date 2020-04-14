@@ -22,6 +22,7 @@ class Homeagency
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le nom fourni n'est pas valide)
      */
     private $name;
 

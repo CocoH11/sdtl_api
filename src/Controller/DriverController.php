@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Driver;
+use PhpParser\Node\Expr\List_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,16 +27,13 @@ class DriverController extends AbstractController
             ->setFirstname($data["driver"]["firstname"])
         ;
         $errors = $validator->validate($newdriver);
-
+        $errorsmessages=[];
         if (count($errors) > 0) {
-            /*
-             * Uses a __toString method on the $errors variable which is a
-             * ConstraintViolationList object. This gives us a nice string
-             * for debugging.
-             */
-            //$errorsString = (string) $errors;
 
-            return new Response("c'est pas bien");
+            foreach ($errors as $error){
+                array_push($errorsmessages, $error->getMessage());
+            }
+            return new Response(implode("/", $errorsmessages));
         }
         $doctrine->getManager()->persist($newdriver);
         $doctrine->getManager()->flush();

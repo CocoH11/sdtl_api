@@ -20,6 +20,10 @@ class Refuel
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\LessThanOrEqual(
+     *     value=200
+     *     message="le volume de carburant n'est pas valide"
+     * )
      */
     private $volume;
 
