@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
-use http\Message\Body;
-use PhpParser\JsonDecoder;
+use App\Entity\Driver;
+use App\Entity\Refuel;
+use App\Entity\Truck;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,29 +24,50 @@ class RefuelController extends AbstractController
     }
 
     /**
-     * @Route("/refuel/1", name="addRefuel", methods={"PUT"})
+     * @Route("/refuel", name="addRefuel", methods={"PUT"})
      */
     public function addRefuel(Request $request){
-        $refueldata=$request->getContent();
-        //$refueldata=$request->request->all();
-        if ($refueldata){
-            return new Response($refueldata, 200);
-        }else{
-            return new Response("ca marche pas", 500);
+        $data=json_decode($request->getContent(), true);
+        //Doctrine
+        $doctrine=$this->getDoctrine();
+        $driver=$doctrine->getRepository(Driver::class)->find($data["refuel"]["driver"]);
+        $truck=$doctrine->getRepository(Truck::class)->find($data["refuel"]["truck"]);
+
+        //Refuel
+        $newRefuel= new Refuel();
+        $newRefuel
+            ->setVolume($data["refuel"]["volume"])
+            ->setTruck($truck)
+        ;
+        if ($driver){
+            $newRefuel->setDriver($driver);
         }
-        //return new Response("hello");
+        $doctrine->getManager()->persist($newRefuel);
+        $doctrine->getManager()->flush();
+        return new Response("", 200);
     }
 
+
+
     /**
-     * @Route("/refuel/n", name="addRefuels", methods={"PUT"})
+     * @Route("/refuels", name="addRefuels", methods={"PUT"})
      */
     public function addRefuels(Request $request){
-        $refueldata=$request->getContent();
-        if ($refueldata){
-            return new Response("ca marche", 200);
-        }else{
-            return new Response("ca marche pas", 500);
+        $data=json_decode($request->getContent(), true);
+        //Doctrine
+        $doctrine=$this->getDoctrine();
+
+        foreach ($data["refuels"] as $refuel){
+            $newRefuel= new Refuel();
+            $newRefuel
+                ->setVolume($refuel["volume"])
+                ->setDriver($refuel["driver"])
+                ->setTruck($refuel["truck"])
+            ;
+            $doctrine->getManager()->persist($refuel);
         }
+        $doctrine->getManager()->flush();
+        return new Response("", 200);
     }
 
     /**
