@@ -34,12 +34,10 @@ class DriverController extends AbstractController
             foreach ($errors as $error){
                 array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
             }
-            $data=json_encode($errorsmessages);
-            return new JsonResponse($errorsmessages, 200);
         }
         $doctrine->getManager()->persist($newdriver);
         $doctrine->getManager()->flush();
-        return new Response("", 200);
+        return new JsonResponse($errorsmessages, 200);
     }
 
     /**
