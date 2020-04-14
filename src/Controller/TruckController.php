@@ -34,7 +34,7 @@ class TruckController extends AbstractController
             ->setActivity($activity)
         ;
         //Codes
-        foreach ($data["codes"] as $code){
+        foreach ($data["truck"]["codes"] as $code){
             $system=$doctrine->getRepository(System::class)->find($code["system"]);
             $newCode= new Code();
             $newCode
@@ -59,7 +59,7 @@ class TruckController extends AbstractController
         //Doctrine
         $doctrine=$this->getDoctrine();
 
-        foreach ($data["hello"] as $truck){
+        foreach ($data["trucks"] as $truck){
             $type=$doctrine->getRepository(Type::class)->find($truck["type"]);
             $homeagency=$doctrine->getRepository(Homeagency::class)->find($truck["homeagency"]);
             $activity=$doctrine->getRepository(Activity::class)->find($truck["activity"]);
