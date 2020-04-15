@@ -6,16 +6,18 @@ use App\Entity\Driver;
 use App\Entity\Refuel;
 use App\Entity\Truck;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class RefuelController extends AbstractController
 {
     /**
      * @Route("/refuel", name="addRefuel", methods={"PUT"})
      */
-    public function addRefuel(Request $request){
+    public function addRefuel(Request $request, ValidatorInterface $validator){
         $data=json_decode($request->getContent(), true);
         //Doctrine
         $doctrine=$this->getDoctrine();
@@ -27,13 +29,22 @@ class RefuelController extends AbstractController
         $newRefuel
             ->setVolume($data["refuel"]["volume"])
             ->setTruck($truck)
-        ;
-        if ($driver){
-            $newRefuel->setDriver($driver);
+            ->setDriver($driver);
+
+        $errors=$validator->validate($newRefuel);
+        $errorsmessages=[];
+        if (count($errors)>0){
+            foreach ($errors as $error){
+                array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
+            }
+        }if ($data["refuel"]["driver"] && !$driver){
+            array_push($errorsmessages, ["driver"=>"le véhicule entré est invalide"]);
         }
-        $doctrine->getManager()->persist($newRefuel);
-        $doctrine->getManager()->flush();
-        return new Response("", 200);
+        else{
+            $doctrine->getManager()->persist($newRefuel);
+            $doctrine->getManager()->flush();
+        }
+        return new JsonResponse($errorsmessages, 200);
     }
 
 
@@ -55,6 +66,7 @@ class RefuelController extends AbstractController
             $newRefuel
                 ->setVolume($refuel["volume"])
                 ->setTruck($truck);
+
             if ($driver){
                 $newRefuel->setDriver($driver);
             }

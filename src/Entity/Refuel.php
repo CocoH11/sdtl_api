@@ -30,11 +30,14 @@ class Refuel
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Driver", inversedBy="refuels")
      */
+    //@Assert\NotNull(message="le chauffeur entré est invalide")
+
     private $driver;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Truck", inversedBy="refuels")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="le véhicule entré est invalide")
      */
     private $truck;
 
