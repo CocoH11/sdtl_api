@@ -21,15 +21,15 @@ class RefuelController extends AbstractController
         $data=json_decode($request->getContent(), true);
         //Doctrine
         $doctrine=$this->getDoctrine();
-        $driver=$doctrine->getRepository(Driver::class)->find($data["refuel"]["driver"]);
+        if ($data["refuel"]["driver"])$driver=$doctrine->getRepository(Driver::class)->find($data["refuel"]["driver"]);
         $truck=$doctrine->getRepository(Truck::class)->find($data["refuel"]["truck"]);
 
         //Refuel
         $newRefuel= new Refuel();
         $newRefuel
             ->setVolume($data["refuel"]["volume"])
-            ->setTruck($truck)
-            ->setDriver($driver);
+            ->setTruck($truck);
+            if($data["refuel"]["driver"])$newRefuel->setDriver($driver);
 
         $errors=$validator->validate($newRefuel);
         $errorsmessages=[];
@@ -52,29 +52,38 @@ class RefuelController extends AbstractController
     /**
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
      */
-    public function addRefuels(Request $request){
+    public function addRefuels(Request $request, ValidatorInterface $validator){
         $data=json_decode($request->getContent(), true);
         //Doctrine
         $doctrine=$this->getDoctrine();
+        $refuelserrorsmessages=[];
 
         foreach ($data["refuels"] as $refuel){
-            if ($refuel["driver"]){
-                $driver=$doctrine->getRepository(Driver::class)->find($refuel["driver"]);
-            }else $driver=null;
+            if ($refuel["driver"])$driver=$doctrine->getRepository(Driver::class)->find($refuel["driver"]);
             $truck=$doctrine->getRepository(Truck::class)->find($refuel["truck"]);
             $newRefuel= new Refuel();
             $newRefuel
                 ->setVolume($refuel["volume"])
                 ->setTruck($truck);
+            if ($refuel["driver"])$newRefuel->setDriver($driver);
 
-            if ($driver){
-                $newRefuel->setDriver($driver);
+            $errors=$validator->validate($newRefuel);
+            $errorsmessages=[];
+            if (count($errors)>0){
+                foreach ($errors as $error){
+                    array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
+                }
+            }if ($refuel["driver"] && !$driver){
+                array_push($errorsmessages, ["driver"=>"le véhicule entré est invalide"]);
             }
-            ;
-            $doctrine->getManager()->persist($newRefuel);
+            else{
+                $doctrine->getManager()->persist($newRefuel);
+            }
+            array_push($refuelserrorsmessages, $errorsmessages);
+
         }
         $doctrine->getManager()->flush();
-        return new Response("", 200);
+        return new JsonResponse($refuelserrorsmessages, 200);
     }
 
     /**
