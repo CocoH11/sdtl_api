@@ -26,7 +26,8 @@ class Truck
     private $numberplate;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="trucks")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $homeagency;
 
