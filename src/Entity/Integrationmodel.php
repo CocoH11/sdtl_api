@@ -22,44 +22,53 @@ class Integrationmodel
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="L'emplacement du volume de carburant fourni n'est pas valide")
      */
     private $volumelocation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="L'emplacement de la date fourni n'est pas valide")
      */
     private $datelocation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Le format de date fourni n'est pas valide")
      */
-    private $dateformatlocation;
+    private $dateformat;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="L'emplacement du code du véhicule n'est pas valide")
      */
     private $codetrucklocation;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank(message="L'emplacement du code du chauffeur n'est pas valide")
      */
     private $codedriverlocation;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="L'emplacement du kilométrage du véhicule n'est pas valide")
      */
     private $mileagetrucklocation;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Homeagency", mappedBy="integrationmodels")
-     */
-    private $homeagencies;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\System", inversedBy="integrationmodels")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="Le système fourni est invalide")
      */
     private $system;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="integrationmodels")
+     * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="L'agence de rattachement fournie n'est pas valide")
+     */
+    private $homeagency;
 
     public function __construct()
     {
@@ -95,17 +104,6 @@ class Integrationmodel
         return $this;
     }
 
-    public function getDateformatlocation(): ?string
-    {
-        return $this->dateformatlocation;
-    }
-
-    public function setDateformatlocation(string $dateformatlocation): self
-    {
-        $this->dateformatlocation = $dateformatlocation;
-
-        return $this;
-    }
 
     public function getCodetrucklocation(): ?string
     {
@@ -143,34 +141,6 @@ class Integrationmodel
         return $this;
     }
 
-    /**
-     * @return Collection|Homeagency[]
-     */
-    public function getHomeagencies(): Collection
-    {
-        return $this->homeagencies;
-    }
-
-    public function addHomeagency(Homeagency $homeagency): self
-    {
-        if (!$this->homeagencies->contains($homeagency)) {
-            $this->homeagencies[] = $homeagency;
-            $homeagency->addIntegrationmodel($this);
-        }
-
-        return $this;
-    }
-
-    public function removeHomeagency(Homeagency $homeagency): self
-    {
-        if ($this->homeagencies->contains($homeagency)) {
-            $this->homeagencies->removeElement($homeagency);
-            $homeagency->removeIntegrationmodel($this);
-        }
-
-        return $this;
-    }
-
     public function getSystem(): ?System
     {
         return $this->system;
@@ -179,6 +149,30 @@ class Integrationmodel
     public function setSystem(?System $system): self
     {
         $this->system = $system;
+
+        return $this;
+    }
+
+    public function getDateformat(): ?string
+    {
+        return $this->dateformat;
+    }
+
+    public function setDateformat(string $dateformat): self
+    {
+        $this->dateformat = $dateformat;
+
+        return $this;
+    }
+
+    public function getHomeagency(): ?Homeagency
+    {
+        return $this->homeagency;
+    }
+
+    public function setHomeagency(?Homeagency $homeagency): self
+    {
+        $this->homeagency = $homeagency;
 
         return $this;
     }

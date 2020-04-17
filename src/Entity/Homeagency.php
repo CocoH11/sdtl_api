@@ -31,15 +31,16 @@ class Homeagency
      */
     private $trucks;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Integrationmodel", inversedBy="homeagencies")
-     */
-    private $integrationmodels;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="homeagency")
      */
     private $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Integrationmodel", mappedBy="homeagency")
+     */
+    private $integrationmodels;
 
 
     public function __construct()
@@ -98,32 +99,6 @@ class Homeagency
     }
 
     /**
-     * @return Collection|Integrationmodel[]
-     */
-    public function getIntegrationmodels(): Collection
-    {
-        return $this->integrationmodels;
-    }
-
-    public function addIntegrationmodel(Integrationmodel $integrationmodel): self
-    {
-        if (!$this->integrationmodels->contains($integrationmodel)) {
-            $this->integrationmodels[] = $integrationmodel;
-        }
-
-        return $this;
-    }
-
-    public function removeIntegrationmodel(Integrationmodel $integrationmodel): self
-    {
-        if ($this->integrationmodels->contains($integrationmodel)) {
-            $this->integrationmodels->removeElement($integrationmodel);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection|User[]
      */
     public function getUsers(): Collection
@@ -148,6 +123,37 @@ class Homeagency
             // set the owning side to null (unless already changed)
             if ($user->getHomeagency() === $this) {
                 $user->setHomeagency(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Integrationmodel[]
+     */
+    public function getIntegrationmodels(): Collection
+    {
+        return $this->integrationmodels;
+    }
+
+    public function addIntegrationmodel(Integrationmodel $integrationmodel): self
+    {
+        if (!$this->integrationmodels->contains($integrationmodel)) {
+            $this->integrationmodels[] = $integrationmodel;
+            $integrationmodel->setHomeagency($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIntegrationmodel(Integrationmodel $integrationmodel): self
+    {
+        if ($this->integrationmodels->contains($integrationmodel)) {
+            $this->integrationmodels->removeElement($integrationmodel);
+            // set the owning side to null (unless already changed)
+            if ($integrationmodel->getHomeagency() === $this) {
+                $integrationmodel->setHomeagency(null);
             }
         }
 
