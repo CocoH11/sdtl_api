@@ -46,17 +46,17 @@ class IntegrationmodelController extends AbstractController
     }
 
     /**
-     * @Route("/integrationmodels", name="addIntegrationmodels", methods={"PUT"})
-     */
-    public function addIntegrationmodels(Request $request){
-        return new JsonResponse("", 200);
-    }
-
-    /**
      * @Route("/integrationmodel/{id}", name="deleteIntegrationmodel", methods={"DELETE"})
      */
     public function deleteIntegrationmodel(Request $request, int $id){
-        return new JsonResponse("", 200);
+        $doctrine=$this->getDoctrine();
+        $integrationmodel=$doctrine->getRepository(Integrationmodel::class)->find($id);
+        $error=null;
+        if($integrationmodel){
+            $doctrine->getManager()->remove($integrationmodel);
+            $doctrine->getManager()->flush();
+        }else $error="Le modèle d'intégration à supprimer n'existe pas";
+        return new JsonResponse($error, 200);
     }
 
     /**
