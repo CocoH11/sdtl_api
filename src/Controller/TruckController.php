@@ -64,12 +64,12 @@ class TruckController extends AbstractController
     /**
      * @Route("/trucks", name="addTrucks", methods={"PUT"})
      */
-    public function addTrucks(Request $request){
+    public function addTrucks(Request $request, ValidatorInterface $validator){
         $data=json_decode($request->getContent(), true);
         //var_dump($data);
         //Doctrine
         $doctrine=$this->getDoctrine();
-
+        $truckserrorsmessages=[];
         foreach ($data["trucks"] as $truck){
             $type=$doctrine->getRepository(Type::class)->find($truck["type"]);
             $homeagency=$doctrine->getRepository(Homeagency::class)->find($truck["homeagency"]);
@@ -91,12 +91,18 @@ class TruckController extends AbstractController
                     ->setSystem($system)
                 ;
                 $newtruck->addCode($newCode);
-                $doctrine->getManager()->persist($newCode);
             }
-            $doctrine->getManager()->persist($newtruck);
+            $errorsmessages=[];
+            $errors=$validator->validate($newtruck);
+            if (count($errors)>0){
+                foreach ($errors as $error){
+                    array_push($errorsmessages, [$error->getPropertyPath(), $error->getMessage()]);
+                }
+            }else $doctrine->getManager()->persist($newtruck);
+            array_push($truckserrorsmessages, $errorsmessages);
         }
         $doctrine->getManager()->flush();
-        return new Response("", 200);
+        return new JsonResponse($truckserrorsmessages, 200);
     }
 
 
