@@ -77,12 +77,14 @@ class DriverController extends AbstractController
     public function deleteDriver(Request $request, $id){
         //Doctrine
         $doctrine=$this->getDoctrine();
-
         //Driver
         $driver=$doctrine->getRepository(Driver::class)->find($id);
-        $doctrine->getManager()->remove($driver);
-        $doctrine->getManager()->flush();
-        return new Response($id, 200);
+        $error=null;
+        if ($driver) {
+            $doctrine->getManager()->remove($driver);
+            $doctrine->getManager()->flush();
+        }else $error="Le chauffeur à supprimer n'existe dans la base de données";
+        return new Response($error, 200);
     }
 
     /**
