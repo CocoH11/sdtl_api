@@ -48,7 +48,7 @@ class Truck
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Code", mappedBy="truck", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Code", mappedBy="truck", cascade={"persist", "remove"})
      * @Assert\Valid(traverse=true)
      */
     private $codes;

@@ -113,10 +113,6 @@ class TruckController extends AbstractController
         //Doctrine
         $doctrine=$this->getDoctrine();
         $truck=$doctrine->getRepository(Truck::class)->find($id);
-        //codes of the truck
-        foreach ($truck->getCodes() as $code){
-            $doctrine->getManager()->remove($code);
-        }
         //truck
         $doctrine->getManager()->remove($truck);
         $doctrine->getManager()->flush();
