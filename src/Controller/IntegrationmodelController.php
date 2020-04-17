@@ -62,7 +62,33 @@ class IntegrationmodelController extends AbstractController
     /**
      * @Route("/integrationmodel/{id}", name="updateIntegrationmodel", methods={"PATCH"})
      */
-    public function updateIntegrationmodel($id){
-        return new JsonResponse("", 200);
+    public function updateIntegrationmodel(Request $request, int $id, ValidatorInterface $validator){
+        $doctrine=$this->getDoctrine();
+        $integrationmodel=$doctrine->getRepository(Integrationmodel::class)->find($id);
+        $errorsmessages=[];
+        if ($integrationmodel){
+            $data=json_decode($request->getContent(), true);
+            $system=$doctrine->getRepository(System::class)->find($data["integrationmodel"]["system"]);
+            $homeagency=$doctrine->getRepository(Homeagency::class)->find($data["integrationmodel"]["homeagency"]);
+            if ($data["integrationmodel"]["codetrucklocation"])$integrationmodel->setCodetrucklocation($data["integrationmodel"]["codetrucklocation"]);
+            if ($data["integrationmodel"]["codedriverlocation"])$integrationmodel->setCodedriverlocation($data["integrationmodel"]["codedriverlocation"]);
+            if ($data["integrationmodel"]["datelocation"])$integrationmodel->setDatelocation($data["integrationmodel"]["datelocation"]);
+            if ($data["integrationmodel"]["dateformat"])$integrationmodel->setDateformat($data["integrationmodel"]["dateformat"]);
+            if ($data["integrationmodel"]["volumelocation"])$integrationmodel->setVolumelocation($data["integrationmodel"]["volumelocation"]);
+            if ($data["integrationmodel"]["mileagetrucklocation"])$integrationmodel->setMileagetrucklocation($data["integrationmodel"]["mileagetrucklocation"]);
+            if ($data["integrationmodel"]["system"])$integrationmodel->setSystem($system);
+            if ($data["integrationmodel"]["homeagency"])$integrationmodel->setHomeagency($homeagency);
+            $errors=$validator->validate($integrationmodel);
+            if (count($errors)>0){
+                foreach ($errors as $error){
+                    array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
+                }
+            }else{
+                var_dump("hello");
+                $doctrine->getManager()->flush();
+            }
+        }else array_push($errorsmessages, "Le modèle d'intégration à modifier n'existe pas");
+
+        return new JsonResponse($errorsmessages, 200);
     }
 }
