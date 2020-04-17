@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class RefuelController extends AbstractController
@@ -87,33 +88,44 @@ class RefuelController extends AbstractController
     }
 
     /**
-     * @Route("/refuel", name="deleteRefuel", methods={"DELETE"})
+     * @Route("/refuel/{id}", name="deleteRefuel", methods={"DELETE"})
      */
-    public function deleteRefuel(Request $request){
-
+    public function deleteRefuel(Request $request, int $id){
+        $doctrine=$this->getDoctrine();
+        $refuel=$doctrine->getRepository(Refuel::class)->find($id);
+        $error=null;
+        if ($refuel){
+            $doctrine->getManager()->remove($refuel);
+            $doctrine->getManager()->flush();
+        }else $error="Le plein à supprimer n'existe pas";
+        return new JsonResponse($error, 200);
     }
 
     /**
      * @Route("/refuel/{id}", name="updateRefuel", methods={"PATCH"})
      */
     public function updateRefuel(Request $request,int $id){
-        $data=json_decode($request->getContent(), true);
+
         //Doctrine
         $doctrine=$this->getDoctrine();
         $refuel=$doctrine->getRepository(Refuel::class)->find($id);
-        if ($data["refuel"]["volume"])$refuel->setVolume($data["refuel"]["volume"]);
-        if ($data["refuel"]["truck"]){
-            $truck=$doctrine->getRepository(Truck::class)->find($data["refuel"]["truck"]);
-            $refuel->setTruck($truck);
-        }
-        if ($data["refuel"]["driver"]) {
-            var_dump($data["refuel"]["driver"]);
-            $driver = $doctrine->getRepository(Driver::class)->find($data["refuel"]["driver"]);
-            $refuel->setDriver($driver);
-        }else{
-            $refuel->setDriver(null);
-        }
-        $doctrine->getManager()->flush();
+        $error=null;
+        if ($refuel) {
+            $data = json_decode($request->getContent(), true);
+            if ($data["refuel"]["volume"]) $refuel->setVolume($data["refuel"]["volume"]);
+            if ($data["refuel"]["truck"]) {
+                $truck = $doctrine->getRepository(Truck::class)->find($data["refuel"]["truck"]);
+                $refuel->setTruck($truck);
+            }
+            if ($data["refuel"]["driver"]) {
+                var_dump($data["refuel"]["driver"]);
+                $driver = $doctrine->getRepository(Driver::class)->find($data["refuel"]["driver"]);
+                $refuel->setDriver($driver);
+            } else {
+                $refuel->setDriver(null);
+            }
+            $doctrine->getManager()->flush();
+        }else $error="Le plein à modifier n'existe pas";
         return new Response("", 200);
     }
 }
