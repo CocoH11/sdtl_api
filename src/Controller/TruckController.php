@@ -9,16 +9,18 @@ use App\Entity\System;
 use App\Entity\Truck;
 use App\Entity\Type;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TruckController extends AbstractController
 {
     /**
      * @Route("/truck", name="addTruck", methods={"PUT"})
      */
-    public function addTruck(Request $request){
+    public function addTruck(Request $request, ValidatorInterface $validator){
         $data=json_decode($request->getContent(), true);
         //Doctrine
         $doctrine=$this->getDoctrine();
@@ -42,11 +44,20 @@ class TruckController extends AbstractController
                 ->setSystem($system)
             ;
             $newtruck->addCode($newCode);
-            $doctrine->getManager()->persist($newCode);
+            //$doctrine->getManager()->persist($newCode);
         }
-        $doctrine->getManager()->persist($newtruck);
-        $doctrine->getManager()->flush();
-        return new Response("", 200);
+        $errorsmessages=[];
+        $errors=$validator->validate($newtruck);
+        if (count($errors)>0){
+            foreach ($errors as $error){
+                array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
+
+            }
+        }else{
+            $doctrine->getManager()->persist($newtruck);
+            $doctrine->getManager()->flush();
+        }
+        return new JsonResponse($errorsmessages, 200);
 
     }
 

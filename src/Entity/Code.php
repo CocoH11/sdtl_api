@@ -33,6 +33,7 @@ class Code
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\System", inversedBy="codes")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="Le système entré est invalide")
      */
     private $system;
 

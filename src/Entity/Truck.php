@@ -22,29 +22,34 @@ class Truck
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank(message="Le numéro d'immatriculation n'est pas valide")
      */
     private $numberplate;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="trucks")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="L'agence de rattachement fournie est invalide")
      */
     private $homeagency;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Activity", inversedBy="trucks")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="l'activité fournie est invalide")
      */
     private $activity;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Type", inversedBy="trucks")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull(message="le type fourni est invalide")
      */
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Code", mappedBy="truck")
+     * @ORM\OneToMany(targetEntity="App\Entity\Code", mappedBy="truck", cascade={"persist"})
+     * @Assert\Valid(traverse=true)
      */
     private $codes;
 
