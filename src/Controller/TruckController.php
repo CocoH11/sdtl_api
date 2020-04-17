@@ -113,10 +113,13 @@ class TruckController extends AbstractController
         //Doctrine
         $doctrine=$this->getDoctrine();
         $truck=$doctrine->getRepository(Truck::class)->find($id);
+        $error=null;
+        if ($truck){
         //truck
-        $doctrine->getManager()->remove($truck);
-        $doctrine->getManager()->flush();
-        return new Response($id, 200);
+            $doctrine->getManager()->remove($truck);
+            $doctrine->getManager()->flush();
+        }else $error="Le véhicule à supprimer n'existe pas";
+        return new JsonResponse($error, 200);
     }
 
     /**
@@ -126,32 +129,33 @@ class TruckController extends AbstractController
         //Doctrine
         $doctrine=$this->getDoctrine();
         $truck=$doctrine->getRepository(Truck::class)->find($id);
-        $data=json_decode($request->getContent(), true);
-        if ($data["truck"]["numberplate"])$truck->setNumberplate($data["truck"]["numberplate"]);
-        if ($data["truck"]["homeagency"]){
-            $homeagency=$this->getDoctrine()->getRepository(Homeagency::class)->find($data["truck"]["homeagency"]);
-            $truck->setHomeagency($homeagency);
-        }
-        if ($data["truck"]["type"]){
-            $type=$doctrine->getRepository(Type::class)->find($data["truck"]["type"]);
-            $truck->setType($type);
-        }
-        if ($data["truck"]["activity"]){
-            $activity=$doctrine->getRepository(Activity::class)->find($data["truck"]["activity"]);
-            $truck->setActivity($activity);
-        }
-        if ($data["truck"]["codes"]){
-            foreach ($data["truck"]["codes"] as $code){
-                $system=$doctrine->getRepository(System::class)->find($code["system"]);
-                $newcode=new Code();
-                $newcode->setCode($code["code"]);
-                $newcode->setSystem($system);
-                $truck->addCode($newcode);
-
-                $doctrine->getManager()->persist($newcode);
+        $error=null;
+        if ($truck) {
+            $data = json_decode($request->getContent(), true);
+            if ($data["truck"]["numberplate"]) $truck->setNumberplate($data["truck"]["numberplate"]);
+            if ($data["truck"]["homeagency"]) {
+                $homeagency = $this->getDoctrine()->getRepository(Homeagency::class)->find($data["truck"]["homeagency"]);
+                $truck->setHomeagency($homeagency);
             }
-        }
-        $doctrine->getManager()->flush();
-        return new Response("", 200);
+            if ($data["truck"]["type"]) {
+                $type = $doctrine->getRepository(Type::class)->find($data["truck"]["type"]);
+                $truck->setType($type);
+            }
+            if ($data["truck"]["activity"]) {
+                $activity = $doctrine->getRepository(Activity::class)->find($data["truck"]["activity"]);
+                $truck->setActivity($activity);
+            }
+            if ($data["truck"]["codes"]) {
+                foreach ($data["truck"]["codes"] as $code) {
+                    $system = $doctrine->getRepository(System::class)->find($code["system"]);
+                    $newcode = new Code();
+                    $newcode->setCode($code["code"]);
+                    $newcode->setSystem($system);
+                    $truck->addCode($newcode);
+                }
+            }
+            $doctrine->getManager()->flush();
+        }else $error="Le véhicule à modifier n'existe pas";
+        return new JsonResponse($error, 200);
     }
 }
