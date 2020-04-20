@@ -15,6 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class TruckController
+ * @package App\Controller
+ * @Route("/api")
+ */
 class TruckController extends AbstractController
 {
     /**

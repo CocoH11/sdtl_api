@@ -11,6 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class IntegrationmodelController
+ * @package App\Controller
+ * @Route("/api")
+ */
 class IntegrationmodelController extends AbstractController
 {
     /**

@@ -13,6 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class RefuelController
+ * @package App\Controller
+ * @Route("/api")
+ */
 class RefuelController extends AbstractController
 {
     /**

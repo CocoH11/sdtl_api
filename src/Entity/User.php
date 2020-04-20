@@ -38,6 +38,11 @@ class User implements UserInterface
      */
     private $homeagency;
 
+    /**
+    * @ORM\Column(type="string", unique=true, nullable=true)
+    */
+    private $apiToken;
+
 
     public function getId(): ?int
     {
@@ -125,6 +130,18 @@ class User implements UserInterface
     public function setHomeagency(?Homeagency $homeagency): self
     {
         $this->homeagency = $homeagency;
+
+        return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(?string $apiToken): self
+    {
+        $this->apiToken = $apiToken;
 
         return $this;
     }
