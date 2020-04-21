@@ -3,9 +3,11 @@
 namespace App\DataFixtures;
 
 use App\Entity\Activity;
+use App\Entity\Code;
 use App\Entity\Driver;
 use App\Entity\Homeagency;
 use App\Entity\System;
+use App\Entity\Truck;
 use App\Entity\Type;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -28,6 +30,7 @@ class DataFixture extends Fixture
         $this->loadActivities($manager);
         $this->loadUser($manager);
         $this->loadDrivers($manager);
+        $this->loadTrucks($manager);
     }
 
     public function loadDrivers(ObjectManager $manager)
@@ -157,6 +160,61 @@ class DataFixture extends Fixture
         // $product = new Product();
         // $manager->persist($product);
 
+        $manager->flush();
+    }
+
+    public function loadTrucks(ObjectManager $manager){
+        $dataTrucks=[
+            ["numberplate"=>"12EZT314", "homeagency"=>1, "activity"=>1, "type"=>1, "codes"=>
+                [
+                    ["system"=>"1", "code"=>"45678FGBH"],
+                    ["system"=>"2", "code"=>"ERTEHDUGJNBFBG"],
+                ]
+            ],
+            ["numberplate"=>"IHDFUHVD", "homeagency"=>1, "activity"=>1, "type"=>1, "codes"=>
+                [
+                    ["system"=>"3", "code"=>"VTEDYHEJI"],
+                    ["system"=>"4", "code"=>"(ÈUHEGFYUJE"],
+                ]
+            ],
+            ["numberplate"=>"UHKHHZLD", "homeagency"=>2, "activity"=>2, "type"=>2,"codes"=>
+                [
+                    ["system"=>"4", "code"=>"ÈHRÈGDYHDHUH"],
+                    ["system"=>"5", "code"=>"GFDHNDHJDNBF"],
+                ]
+            ],
+            ["numberplate"=>"UKCGOEUB", "homeagency"=>2, "activity"=>2, "type"=>2, "codes"=>
+                [
+                    ["system"=>"1", "code"=>"45678FGBH"],
+                    ["system"=>"5", "code"=>"ERTEHDUGJNBFBG"],
+                ]
+            ]
+        ];
+
+        foreach ($dataTrucks as $truck){
+            $type=$manager->getRepository(Type::class)->find($truck["type"]);
+            $homeagency=$manager->getRepository(Homeagency::class)->find($truck["homeagency"]);
+            $activity=$manager->getRepository(Activity::class)->find($truck["activity"]);
+
+            $newtruck= new Truck();
+            $newtruck
+                ->setNumberplate($truck["numberplate"])
+                ->setHomeagency($homeagency)
+                ->setType($type)
+                ->setActivity($activity)
+            ;
+            //Codes
+            foreach ($truck["codes"] as $code){
+                $system=$manager->getRepository(System::class)->find($code["system"]);
+                $newCode= new Code();
+                $newCode
+                    ->setCode($code["code"])
+                    ->setSystem($system)
+                ;
+                $newtruck->addCode($newCode);
+                $manager->persist($newtruck);
+            }
+        }
         $manager->flush();
     }
 }

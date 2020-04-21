@@ -8,11 +8,17 @@ use App\Entity\Homeagency;
 use App\Entity\System;
 use App\Entity\Truck;
 use App\Entity\Type;
+use App\Entity\User;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -112,7 +118,7 @@ class TruckController extends AbstractController
 
 
     /**
-     * @Route("truck/{id}", name="deleteTruck", methods={"DELETE"})
+     * @Route("/truck/{id}", name="deleteTruck", methods={"DELETE"})
      */
     public function deleteTruck(Request $request,int $id){
         //Doctrine
@@ -128,7 +134,7 @@ class TruckController extends AbstractController
     }
 
     /**
-     * @Route("truck/{id}", name="updateTruck", methods={"PATCH"})
+     * @Route("/truck/{id}", name="updateTruck", methods={"PATCH"})
      */
     public function updateTruck(Request $request,int $id){
         //Doctrine
@@ -162,5 +168,47 @@ class TruckController extends AbstractController
             $doctrine->getManager()->flush();
         }else $error="Le véhicule à modifier n'existe pas";
         return new JsonResponse($error, 200);
+    }
+
+    /**
+     * @Route("/trucks/", name="getTrucks", methods={"GET"})
+     */
+    public function getTrucks(Request $request){
+        $data=null;
+        $cookie = $request->cookies->get("jwt");
+        $id=null;
+        $login=null;
+        // Default error message
+        $error = "Unable to validate session.";
+        try
+        {
+            $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
+            $id=$decodedJwt->user_id;
+            $login=$decodedJwt->login;
+            $homeagency=$this->getDoctrine()->getRepository(User::class)->find($id)->getHomeagency();
+            $data=$this->getDoctrine()->getRepository(Truck::class)->findBy(["homeagency"=>$homeagency]);
+            $datatosend=[];
+            foreach ($data as $truck){
+                array_push($datatosend, ["numberplate"=>$truck->getNumberplate(), "id"=>$truck->getId()]);
+            }
+
+            return new JsonResponse($datatosend, 200);
+        }
+        catch(ExpiredException $e)
+        {
+            $error = "Session has expired.";
+        }
+        catch(SignatureInvalidException $e)
+        {
+            // In this case, you may also want to send an email to yourself with the JWT
+            // If someone uses a JWT with an invalid signature, it could
+            // be a hacking attempt.
+            $error = "Attempting access invalid session.";
+        }
+        catch(Exception $e)
+        {
+            // Use the default error message
+        }
+        throw new CustomUserMessageAuthenticationException($error);
     }
 }

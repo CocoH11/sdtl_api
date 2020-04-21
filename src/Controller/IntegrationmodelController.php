@@ -5,10 +5,16 @@ namespace App\Controller;
 use App\Entity\Homeagency;
 use App\Entity\Integrationmodel;
 use App\Entity\System;
+use App\Entity\User;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -95,5 +101,47 @@ class IntegrationmodelController extends AbstractController
         }else array_push($errorsmessages, "Le modèle d'intégration à modifier n'existe pas");
 
         return new JsonResponse($errorsmessages, 200);
+    }
+
+    /**
+     * @Route("integrationmodels", name="getIntegrationmodels", methods={"GET"})
+     */
+    public function getIntegrationmodels(Request $request){
+        $data=null;
+        $cookie = $request->cookies->get("jwt");
+        $id=null;
+        $login=null;
+        // Default error message
+        $error = "Unable to validate session.";
+        try
+        {
+            $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
+            $id=$decodedJwt->user_id;
+            $login=$decodedJwt->login;
+            $homeagency=$this->getDoctrine()->getRepository(User::class)->find($id)->getHomeagency();
+            $data=$this->getDoctrine()->getRepository(Integrationmodel::class)->findBy(["homeagency"=>$homeagency]);
+            $datatosend=[];
+            foreach ($data as $integrationmodel){
+                array_push($datatosend, ["name"=>$integrationmodel->getName(), "id"=>$integrationmodel->getId()]);
+            }
+
+            return new JsonResponse($datatosend, 200);
+        }
+        catch(ExpiredException $e)
+        {
+            $error = "Session has expired.";
+        }
+        catch(SignatureInvalidException $e)
+        {
+            // In this case, you may also want to send an email to yourself with the JWT
+            // If someone uses a JWT with an invalid signature, it could
+            // be a hacking attempt.
+            $error = "Attempting access invalid session.";
+        }
+        catch(Exception $e)
+        {
+            // Use the default error message
+        }
+        throw new CustomUserMessageAuthenticationException($error);
     }
 }

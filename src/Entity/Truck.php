@@ -21,7 +21,7 @@ class Truck
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      * @Assert\NotBlank(message="Le numéro d'immatriculation n'est pas valide")
      */
     private $numberplate;
