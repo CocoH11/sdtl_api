@@ -42,12 +42,18 @@ class Homeagency
      */
     private $integrationmodels;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Driver", mappedBy="homeagency")
+     */
+    private $drivers;
+
 
     public function __construct()
     {
         $this->trucks = new ArrayCollection();
         $this->integrationmodels = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->drivers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -154,6 +160,37 @@ class Homeagency
             // set the owning side to null (unless already changed)
             if ($integrationmodel->getHomeagency() === $this) {
                 $integrationmodel->setHomeagency(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Driver[]
+     */
+    public function getDrivers(): Collection
+    {
+        return $this->drivers;
+    }
+
+    public function addDriver(Driver $driver): self
+    {
+        if (!$this->drivers->contains($driver)) {
+            $this->drivers[] = $driver;
+            $driver->setHomeagency($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDriver(Driver $driver): self
+    {
+        if ($this->drivers->contains($driver)) {
+            $this->drivers->removeElement($driver);
+            // set the owning side to null (unless already changed)
+            if ($driver->getHomeagency() === $this) {
+                $driver->setHomeagency(null);
             }
         }
 

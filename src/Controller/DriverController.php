@@ -3,12 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Driver;
+use App\Entity\User;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
 use PhpParser\Node\Expr\List_;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -98,5 +104,47 @@ class DriverController extends AbstractController
     public function updateDriver(Request $request, int $id){
 
 
+    }
+
+    /**
+     * @Route("/drivers", name="getDrivers", methods={"GET"})
+     */
+    public function getDrivers(Request $request){
+        $data=null;
+        $cookie = $request->cookies->get("jwt");
+        $id=null;
+        $login=null;
+        // Default error message
+        $error = "Unable to validate session.";
+        try
+        {
+            $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
+            $id=$decodedJwt->user_id;
+            $login=$decodedJwt->login;
+            $homeagency=$this->getDoctrine()->getRepository(User::class)->find($id)->getHomeagency();
+            $data=$this->getDoctrine()->getRepository(Driver::class)->findBy(["homeagency"=>$homeagency]);
+            $datatosend=[];
+            foreach ($data as $driver){
+                array_push($datatosend, ["name"=>$driver->getName(), "firstname"=>$driver->getFirstname()]);
+            }
+
+            return new JsonResponse($datatosend, 200);
+        }
+        catch(ExpiredException $e)
+        {
+            $error = "Session has expired.";
+        }
+        catch(SignatureInvalidException $e)
+        {
+            // In this case, you may also want to send an email to yourself with the JWT
+            // If someone uses a JWT with an invalid signature, it could
+            // be a hacking attempt.
+            $error = "Attempting access invalid session.";
+        }
+        catch(Exception $e)
+        {
+            // Use the default error message
+        }
+        throw new CustomUserMessageAuthenticationException($error);
     }
 }

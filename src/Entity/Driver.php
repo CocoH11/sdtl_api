@@ -36,6 +36,12 @@ class Driver
      */
     private $refuels;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="drivers")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $homeagency;
+
     public function __construct()
     {
         $this->refuels = new ArrayCollection();
@@ -97,6 +103,18 @@ class Driver
                 $refuel->setDriver(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getHomeagency(): ?Homeagency
+    {
+        return $this->homeagency;
+    }
+
+    public function setHomeagency(?Homeagency $homeagency): self
+    {
+        $this->homeagency = $homeagency;
 
         return $this;
     }
