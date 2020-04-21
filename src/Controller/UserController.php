@@ -92,4 +92,18 @@ class UserController extends AbstractController
 
         return new JsonResponse($errorsmessages, 200);
     }
+
+    /**
+     * @Route("/admin/user/{id}", name="deleteUser", methods={"DELETE"})
+     */
+    public function deleteUser(Request $request, int $id){
+        $error=null;
+        $user=$this->getDoctrine()->getRepository(User::class)->find($id);
+        if ($user) {
+            $this->getDoctrine()->getManager()->remove($user);
+            $this->getDoctrine()->getManager()->flush();
+        }else $error="l'utilisateur à supprimer n'existe pas";
+
+        return new JsonResponse($error, 200);
+    }
 }
