@@ -8,7 +8,6 @@
         "ext-json": "*",
         "doctrine/annotations": "^1.10",
         "firebase/php-jwt": "^5.2",
-        "lcobucci/jwt": "^3.3",
         "sensio/framework-extra-bundle": "^5.5",
         "symfony/console": "5.0.*",
         "symfony/dotenv": "5.0.*",
@@ -18,7 +17,8 @@
         "symfony/security-bundle": "5.0.*",
         "symfony/serializer": "5.0.*",
         "symfony/validator": "5.0.*",
-        "symfony/yaml": "5.0.*"
+        "symfony/yaml": "5.0.*",
+      "ext-openssl": "*"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",
