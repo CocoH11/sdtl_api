@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Homeagency;
 use App\Entity\User;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class UserController
@@ -60,5 +62,34 @@ class UserController extends AbstractController
             // Use the default error message
         }
         throw new CustomUserMessageAuthenticationException($error);
+    }
+
+    /**
+     * @Route("/admin/user", name="addUser", methods={"PUT"})
+     */
+    public function addUser(Request $request, ValidatorInterface $validator){
+        $user=json_decode($request->getContent(), true)["user"];
+        $homeagency=$this->getDoctrine()->getRepository(Homeagency::class)->find($user["homeagency"]);
+
+
+        $newuser= new User();
+        $newuser
+            ->setLogin($user["login"])
+            ->setHomeagency($homeagency)
+            ->setPassword($this->passwordEncoder->encodePassword($newuser, $user["password"]))
+            ->setRoles($user["roles"])
+        ;
+        $errors=$validator->validate($newuser);
+        $errorsmessages=[];
+        if (count($errors)>0){
+            foreach ($errors as $error){
+                array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
+            }
+        }else{
+            $this->getDoctrine()->getManager()->persist($newuser);
+            $this->getDoctrine()->getManager()->flush();
+        }
+
+        return new JsonResponse($errorsmessages, 200);
     }
 }
