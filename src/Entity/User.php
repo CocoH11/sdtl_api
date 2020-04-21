@@ -21,7 +21,6 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\Unique(message="Ce login existe déja")
      */
     private $login;
 

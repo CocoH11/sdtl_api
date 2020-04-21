@@ -106,4 +106,33 @@ class UserController extends AbstractController
 
         return new JsonResponse($error, 200);
     }
+
+    /**
+     * @Route("/admin/users", name="addUsers", methods={"PUT"})
+     */
+    public function addUsers(Request $request, ValidatorInterface $validator){
+        $users=json_decode($request->getContent(), true)["users"];
+        $userserrorsmessages=[];
+        foreach ($users as $user){
+            $homeagency=$this->getDoctrine()->getRepository(Homeagency::class)->find($user["homeagency"]);
+            $newuser= new User();
+
+            $newuser
+                ->setLogin($user["login"])
+                ->setHomeagency($homeagency)
+                ->setPassword($this->passwordEncoder->encodePassword($newuser, $user["password"]))
+                ->setRoles($user["roles"])
+            ;
+            $errors=$validator->validate($newuser);
+            $errorsmessages=[];
+            if (count($errors)>0){
+                foreach ($errors as $error){
+                    array_push($errorsmessages, [$error->getPropertyPath()=>$error->getMessage()]);
+                }
+            }else $this->getDoctrine()->getManager()->persist($newuser);
+            array_push($userserrorsmessages, $errorsmessages);
+        }
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse($userserrorsmessages, 200);
+    }
 }
