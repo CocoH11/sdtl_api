@@ -25,6 +25,7 @@ class SystemController extends AbstractController
         foreach ($systems as $system){
             array_push($datatosend, ["id"=>$system->getId(), "name"=>$system->getName()]);
         }
-        return new JsonResponse($datatosend, 200);
+        $response=new JsonResponse($datatosend, 200);
+        return $response;
     }
 }

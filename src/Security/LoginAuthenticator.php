@@ -61,13 +61,12 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
             'exp'     => $expireTime
         ];
         $jwt = JWT::encode($tokenPayload, "string");
-        // If you are developing on a non-https server, you will need to set
-        // the $useHttps variable to false
-        $useHttps = false;
-        setcookie("jwt", $jwt, $expireTime, "/", "", $useHttps, true);
-        return new JsonResponse([
-            'result' => true
+        setcookie("jwt", $jwt,time()+3600);
+        $response=new JsonResponse([
+            'result'=>true
         ]);
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
 
     public function start(Request $request, AuthenticationException $authException = null)
