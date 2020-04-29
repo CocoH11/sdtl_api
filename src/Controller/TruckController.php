@@ -32,17 +32,20 @@ class TruckController extends AbstractController
      * @Route("/truck", name="addTruck", methods={"PUT"})
      */
     public function addTruck(Request $request, ValidatorInterface $validator){
+        $cookie = $request->cookies->get("jwt");
+        $decodedjwt=JWT::decode($cookie, "string", ['HS256']);
         $data=json_decode($request->getContent(), true);
         //Doctrine
         $doctrine=$this->getDoctrine();
+        $user=$doctrine->getRepository(User::class)->find($decodedjwt->user_id);
         $type=$doctrine->getRepository(Type::class)->find($data["truck"]["type"]);
-        $homeagency=$doctrine->getRepository(Homeagency::class)->find($data["truck"]["homeagency"]);
+        //$homeagency=$doctrine->getRepository(Homeagency::class)->find($data["truck"]["homeagency"]);
         $activity=$doctrine->getRepository(Activity::class)->find($data["truck"]["activity"]);
         //Truck
         $newtruck= new Truck();
         $newtruck
             ->setNumberplate($data["truck"]["numberplate"])
-            ->setHomeagency($homeagency)
+            ->setHomeagency($user->getHomeAgency())
             ->setType($type)
             ->setActivity($activity)
         ;
