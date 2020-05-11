@@ -118,7 +118,7 @@
         "version": "2.2.3"
     },
     "php": {
-        "version": "7.2"
+        "version": "7.4"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -246,8 +246,14 @@
     "symfony/orm-pack": {
         "version": "v1.0.8"
     },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.16.0"
+    },
     "symfony/polyfill-intl-idn": {
         "version": "v1.15.0"
+    },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.16.0"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.15.0"
@@ -307,6 +313,9 @@
     },
     "symfony/stopwatch": {
         "version": "v5.0.7"
+    },
+    "symfony/string": {
+        "version": "v5.0.8"
     },
     "symfony/translation-contracts": {
         "version": "v2.0.1"
