@@ -51,7 +51,11 @@ class RefuelController extends AbstractController
      */
     public function addFileRefuel(Request $request, FileUploader $fileUploader){
         $data= json_decode($request->getContent(), true);
-        $fileUploader->upload($data["filename"], $data["data"]);
-        return new Response(base64_decode($data, false));
+        $newFileName=$fileUploader->upload($data["filename"], $data["data"]);
+        $file=new File($newFileName);
+        $fileExtension=$file->getExtension();
+
+        $fileUploader->deleteFile($newFileName);
+        return new JsonResponse($fileExtension);
     }
 }
