@@ -1,10 +1,8 @@
 <?php
 
-// src/Service/FileUploader.php
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class FileUploader
@@ -18,19 +16,13 @@ class FileUploader
         $this->slugger = $slugger;
     }
 
-    public function upload(UploadedFile $file)
+    public function upload(String $filename, String $filecontent)
     {
-        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFilename = $this->slugger->slug($originalFilename);
-        $fileName = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
-
-        try {
-            $file->move($this->getTargetDirectory(), $fileName);
-        } catch (FileException $e) {
-            // ... handle exception if something happens during file upload
-        }
-
-        return $fileName;
+        $filesystem= new Filesystem();
+        $new_file_path = $this->targetDirectory . $filename;
+        $filesystem->touch($new_file_path);
+        $filesystem->dumpFile($new_file_path, $filecontent);
+        return $filename;
     }
 
     public function getTargetDirectory()
