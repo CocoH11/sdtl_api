@@ -26,11 +26,7 @@ class DataFixture extends Fixture
     {
         $this->loadHomeagency($manager);
         $this->loadSystem($manager);
-        $this->loadType($manager);
-        $this->loadActivities($manager);
         $this->loadUser($manager);
-        $this->loadDrivers($manager);
-        $this->loadTrucks($manager);
     }
 
     public function loadDrivers(ObjectManager $manager)

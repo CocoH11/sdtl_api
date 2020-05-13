@@ -54,8 +54,14 @@ class RefuelController extends AbstractController
         $newFileName=$fileUploader->upload($data["filename"], $data["data"]);
         $file=new File($newFileName);
         $fileExtension=$file->getExtension();
-
         $fileUploader->deleteFile($newFileName);
-        return new JsonResponse($fileExtension);
+        return new JsonResponse();
+    }
+
+    /**
+     * @Route("/refuel", name="testSecureLogin", methods={"POST"})
+     */
+    public function testSecureLogin(){
+        return new Response("testSecureLogin");
     }
 }

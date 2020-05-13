@@ -5,7 +5,6 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SystemRepository")
@@ -21,24 +20,17 @@ class System
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="Le nom fourni n'est pas valide")
      */
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Integrationmodel", mappedBy="system")
+     * @ORM\OneToMany(targetEntity="App\Entity\Refuel", mappedBy="system")
      */
-    private $integrationmodels;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Code", mappedBy="system")
-     */
-    private $codes;
+    private $refuels;
 
     public function __construct()
     {
-        $this->integrationmodels = new ArrayCollection();
-        $this->codes = new ArrayCollection();
+        $this->refuels = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -59,61 +51,30 @@ class System
     }
 
     /**
-     * @return Collection|Integrationmodel[]
+     * @return Collection|Refuel[]
      */
-    public function getIntegrationmodels(): Collection
+    public function getRefuels(): Collection
     {
-        return $this->integrationmodels;
+        return $this->refuels;
     }
 
-    public function addIntegrationmodel(Integrationmodel $integrationmodel): self
+    public function addRefuel(Refuel $refuel): self
     {
-        if (!$this->integrationmodels->contains($integrationmodel)) {
-            $this->integrationmodels[] = $integrationmodel;
-            $integrationmodel->setSystem($this);
+        if (!$this->refuels->contains($refuel)) {
+            $this->refuels[] = $refuel;
+            $refuel->setSystem($this);
         }
 
         return $this;
     }
 
-    public function removeIntegrationmodel(Integrationmodel $integrationmodel): self
+    public function removeRefuel(Refuel $refuel): self
     {
-        if ($this->integrationmodels->contains($integrationmodel)) {
-            $this->integrationmodels->removeElement($integrationmodel);
+        if ($this->refuels->contains($refuel)) {
+            $this->refuels->removeElement($refuel);
             // set the owning side to null (unless already changed)
-            if ($integrationmodel->getSystem() === $this) {
-                $integrationmodel->setSystem(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Code[]
-     */
-    public function getCodes(): Collection
-    {
-        return $this->codes;
-    }
-
-    public function addCode(Code $code): self
-    {
-        if (!$this->codes->contains($code)) {
-            $this->codes[] = $code;
-            $code->setSystem($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCode(Code $code): self
-    {
-        if ($this->codes->contains($code)) {
-            $this->codes->removeElement($code);
-            // set the owning side to null (unless already changed)
-            if ($code->getSystem() === $this) {
-                $code->setSystem(null);
+            if ($refuel->getSystem() === $this) {
+                $refuel->setSystem(null);
             }
         }
 

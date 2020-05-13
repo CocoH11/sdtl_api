@@ -28,18 +28,30 @@ class Refuel
     private $volume;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Driver", inversedBy="refuels")
+     * @ORM\Column(type="date")
      */
-    //@Assert\NotNull(message="le chauffeur entré est invalide")
-
-    private $driver;
+    private $date;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Truck", inversedBy="refuels")
-     * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotNull(message="le véhicule entré est invalide")
+     * @ORM\Column(type="time")
      */
-    private $truck;
+    private $time;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $codeCard;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $codeDriver;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\System", inversedBy="refuels")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $system;
 
     public function getId(): ?int
     {
@@ -58,26 +70,62 @@ class Refuel
         return $this;
     }
 
-    public function getDriver(): ?Driver
+    public function getDate(): ?\DateTimeInterface
     {
-        return $this->driver;
+        return $this->date;
     }
 
-    public function setDriver(?Driver $driver): self
+    public function setDate(\DateTimeInterface $date): self
     {
-        $this->driver = $driver;
+        $this->date = $date;
 
         return $this;
     }
 
-    public function getTruck(): ?Truck
+    public function getTime(): ?\DateTimeInterface
     {
-        return $this->truck;
+        return $this->time;
     }
 
-    public function setTruck(?Truck $truck): self
+    public function setTime(\DateTimeInterface $time): self
     {
-        $this->truck = $truck;
+        $this->time = $time;
+
+        return $this;
+    }
+
+    public function getCodeCard(): ?string
+    {
+        return $this->codeCard;
+    }
+
+    public function setCodeCard(string $codeCard): self
+    {
+        $this->codeCard = $codeCard;
+
+        return $this;
+    }
+
+    public function getCodeDriver(): ?string
+    {
+        return $this->codeDriver;
+    }
+
+    public function setCodeDriver(?string $codeDriver): self
+    {
+        $this->codeDriver = $codeDriver;
+
+        return $this;
+    }
+
+    public function getSystem(): ?System
+    {
+        return $this->system;
+    }
+
+    public function setSystem(?System $system): self
+    {
+        $this->system = $system;
 
         return $this;
     }

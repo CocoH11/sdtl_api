@@ -24,6 +24,8 @@ class FileUploader
         $new_file_path = $this->targetDirectory . $filename;
         $this->filesystem->touch($new_file_path);
         $this->filesystem->dumpFile($new_file_path, $filecontent);
+        //Droits du fichier: lecture, écriture, execution
+        $this->filesystem->chmod($new_file_path, 0777);
         return $new_file_path;
     }
 

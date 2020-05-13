@@ -26,26 +26,11 @@ class Homeagency
      */
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Truck", mappedBy="homeagency")
-     */
-    private $trucks;
-
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="homeagency")
      */
     private $users;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Integrationmodel", mappedBy="homeagency")
-     */
-    private $integrationmodels;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Driver", mappedBy="homeagency")
-     */
-    private $drivers;
 
 
     public function __construct()
@@ -69,37 +54,6 @@ class Homeagency
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Truck[]
-     */
-    public function getTrucks(): Collection
-    {
-        return $this->trucks;
-    }
-
-    public function addTruck(Truck $truck): self
-    {
-        if (!$this->trucks->contains($truck)) {
-            $this->trucks[] = $truck;
-            $truck->setHomeagency($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTruck(Truck $truck): self
-    {
-        if ($this->trucks->contains($truck)) {
-            $this->trucks->removeElement($truck);
-            // set the owning side to null (unless already changed)
-            if ($truck->getHomeagency() === $this) {
-                $truck->setHomeagency(null);
-            }
-        }
 
         return $this;
     }
@@ -129,68 +83,6 @@ class Homeagency
             // set the owning side to null (unless already changed)
             if ($user->getHomeagency() === $this) {
                 $user->setHomeagency(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Integrationmodel[]
-     */
-    public function getIntegrationmodels(): Collection
-    {
-        return $this->integrationmodels;
-    }
-
-    public function addIntegrationmodel(Integrationmodel $integrationmodel): self
-    {
-        if (!$this->integrationmodels->contains($integrationmodel)) {
-            $this->integrationmodels[] = $integrationmodel;
-            $integrationmodel->setHomeagency($this);
-        }
-
-        return $this;
-    }
-
-    public function removeIntegrationmodel(Integrationmodel $integrationmodel): self
-    {
-        if ($this->integrationmodels->contains($integrationmodel)) {
-            $this->integrationmodels->removeElement($integrationmodel);
-            // set the owning side to null (unless already changed)
-            if ($integrationmodel->getHomeagency() === $this) {
-                $integrationmodel->setHomeagency(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Driver[]
-     */
-    public function getDrivers(): Collection
-    {
-        return $this->drivers;
-    }
-
-    public function addDriver(Driver $driver): self
-    {
-        if (!$this->drivers->contains($driver)) {
-            $this->drivers[] = $driver;
-            $driver->setHomeagency($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDriver(Driver $driver): self
-    {
-        if ($this->drivers->contains($driver)) {
-            $this->drivers->removeElement($driver);
-            // set the owning side to null (unless already changed)
-            if ($driver->getHomeagency() === $this) {
-                $driver->setHomeagency(null);
             }
         }
 
