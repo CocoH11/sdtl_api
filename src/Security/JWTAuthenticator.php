@@ -19,19 +19,24 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
 {
     private $id=null;
     private $login=null;
+    public function __construct(){
+        var_dump("hellohellohello2");
+    }
     public function supports(Request $request)
     {
-        return $request->cookies->get("jwt") ? true : false;
+        var_dump("helloworld");
+        return $request->cookies->get("jwtAuthentication") ? true : false;
     }
 
     public function getCredentials(Request $request)
     {
-        $cookie = $request->cookies->get("jwt");
+        $cookie = $request->cookies->get("jwtAuthentication");
         // Default error message
         $error = "Unable to validate session.";
         try
         {
             $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
+            var_dump($decodedJwt);
             $this->id=$decodedJwt->user_id;
             $this->login=$decodedJwt->login;
             return [
@@ -42,6 +47,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         catch(ExpiredException $e)
         {
             $error = "Session has expired.";
+            var_dump($error);
         }
         catch(SignatureInvalidException $e)
         {

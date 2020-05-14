@@ -16,9 +16,11 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class LoginAuthenticator extends AbstractGuardAuthenticator
 {
     private $passwordEncoder;
+    private $refreshStatus=false;
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
+        var_dump("hellohellohello1");
     }
 
     public function supports(Request $request)
@@ -29,9 +31,17 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         $data=json_decode($request->getContent(), true);
+        $login=$data["login"];
+        $password=$data["password"];
+        if (!$login && !$password){
+            $cookie=$request->cookies->get("jwtRefresh");
+            $data=JWT::decode($cookie, "string");
+            $login=$data["login"];
+            $password=$data["password"];
+        }
         return [
-            'login' => $data["login"],
-            'password' => $data["password"],
+            'login' => $login,
+            'password' => $password,
         ];
     }
 
@@ -54,14 +64,24 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        $expireTime = time() + 3600;
-        $tokenPayload = [
+        $expireTimeAuthentication = time() +60;
+        $tokenPayloadAuthentication = [
             'user_id' => $token->getUser()->getId(),
             'login'   => $token->getUser()->getUsername(),
-            'exp'     => $expireTime
+            'exp'     => $expireTimeAuthentication
         ];
-        $jwt = JWT::encode($tokenPayload, "string");
-        setcookie("jwt", $jwt,time()+3600);
+        $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, "string");
+
+        $expireTimeRefresh = time() + 3600;
+        $tokenPayLoadRefresh=[
+            'user_id'=>$token->getUser()->getId(),
+            'password'=>$token->getUser()->getUsername(),
+            'exp'=>$expireTimeRefresh
+        ];
+        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");
+
+        setcookie("jwtAuthentication", $jwtAuthentication,null);
+        setcookie("jwtRefresh", $jwtRefresh);
         $response=new JsonResponse([
             'result'=>true
         ]);
@@ -72,7 +92,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     public function start(Request $request, AuthenticationException $authException = null)
     {
         return new JsonResponse([
-            'error' => 'Access Denied'
+            'error' => 'Access Denied'.'hello'
         ]);
     }
 
