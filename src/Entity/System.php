@@ -28,9 +28,20 @@ class System
      */
     private $refuels;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $directoryName;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Homeagency", mappedBy="systems")
+     */
+    private $homeagencies;
+
     public function __construct()
     {
         $this->refuels = new ArrayCollection();
+        $this->homeagencies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,6 +87,46 @@ class System
             if ($refuel->getSystem() === $this) {
                 $refuel->setSystem(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getDirectoryName(): ?string
+    {
+        return $this->directoryName;
+    }
+
+    public function setDirectoryName(string $directoryName): self
+    {
+        $this->directoryName = $directoryName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Homeagency[]
+     */
+    public function getHomeagencies(): Collection
+    {
+        return $this->homeagencies;
+    }
+
+    public function addHomeagency(Homeagency $homeagency): self
+    {
+        if (!$this->homeagencies->contains($homeagency)) {
+            $this->homeagencies[] = $homeagency;
+            $homeagency->addSystem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHomeagency(Homeagency $homeagency): self
+    {
+        if ($this->homeagencies->contains($homeagency)) {
+            $this->homeagencies->removeElement($homeagency);
+            $homeagency->removeSystem($this);
         }
 
         return $this;

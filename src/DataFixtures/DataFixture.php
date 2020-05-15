@@ -8,42 +8,54 @@ use App\Entity\System;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class DataFixture extends Fixture
 {
     private $passwordEncoder;
+    private $targetDirectory;
+    private $filesystem;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder){
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, $targetDirectory){
         $this->passwordEncoder = $passwordEncoder;
+        $this->targetDirectory=$targetDirectory;
+        $this->filesystem=new Filesystem();
     }
 
     public function load(ObjectManager $manager)
     {
-        $this->loadHomeagency($manager);
         $this->loadSystem($manager);
+        $this->loadHomeagency($manager);
         $this->loadUser($manager);
     }
 
     public function loadHomeagency(ObjectManager $manager)
     {
         $dataHomeagencies = [
-            ["name" => "TC58"],
-            ["name" => "TC35"],
-            ["name" => "TC59"],
-            ["name" => "TC14"],
-            ["name" => "TC71"],
-            ["name" => "TC63"],
-            ["name" => "TC60"],
-            ["name" => "TC91"],
-            ["name" => "SDTL"],
-            ["name" => "ALG"],
+            ["name" => "TC58", "directoryname"=>"TC58", "systems"=>[4,5]],
+            ["name" => "TC35", "directoryname"=>"TC35", "systems"=>[1,5]],
+            ["name" => "TC59", "directoryname"=>"TC59", "systems"=>[4,5]],
+            ["name" => "TC14", "directoryname"=>"TC14", "systems"=>[2,3]],
+            ["name" => "TC71", "directoryname"=>"TC71", "systems"=>[2,3,5]],
+            ["name" => "TC63", "directoryname"=>"TC63", "systems"=>[4,5]],
+            ["name" => "TC60", "directoryname"=>"TC60", "systems"=>[2,5]],
+            ["name" => "TC91", "directoryname"=>"TC91", "systems"=>[2,5]],
+            ["name" => "TC70", "directoryname"=>"TC70", "systems"=>[2,3,6]],
+            ["name" => "ALG", "directoryname"=>"ALG", "systems"=>[5]],
 
         ];
 
         foreach ($dataHomeagencies as $homeagency) {
             $newHomeagency = new Homeagency();
             $newHomeagency->setName($homeagency["name"]);
+            $newHomeagency->setDirectoryname($homeagency["directoryname"]);
+            $this->filesystem->mkdir($this->targetDirectory.$homeagency["directoryname"]);
+            foreach ($homeagency["systems"] as $dataSystem){
+                $system=$manager->getRepository(System::class)->find($dataSystem);
+                $newHomeagency->addSystem($system);
+                $this->filesystem->mkdir($this->targetDirectory.$homeagency["directoryname"]."/".$system->getDirectoryName());
+            }
             $manager->persist($newHomeagency);
         }
         $manager->flush();
@@ -53,17 +65,18 @@ class DataFixture extends Fixture
     public function loadSystem(ObjectManager $manager)
     {
         $datasystems=[
-            ["name"=>"ids"],
-            ["name"=>"as24"],
-            ["name"=>"dkv"],
-            ["name"=>"uta"],
-            ["name"=>"lafont"],
-            ["name"=>"tokheim"]
+            ["name"=>"ids", "directoryname"=>"IDS"],
+            ["name"=>"as24", "directoryname"=>"AS24"],
+            ["name"=>"dkv", "directoryname"=>"DKV"],
+            ["name"=>"uta", "directoryname"=>"UTA"],
+            ["name"=>"lafont", "directoryname"=>"LAFFON"],
+            ["name"=>"tokheim", "directoryname"=>"TOKHEIM"]
         ];
 
         foreach ($datasystems as $system){
             $newsystem= new System();
             $newsystem->setName($system["name"]);
+            $newsystem->setDirectoryName($system["directoryname"]);
             $manager->persist($newsystem);
         }
         // $product = new Product();

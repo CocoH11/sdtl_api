@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-use PhpParser\Node\Scalar\String_;
+use App\Entity\Homeagency;
+use App\Entity\System;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -19,13 +20,15 @@ class FileUploader
         $this->filesystem=$filesystem;
     }
 
-    public function upload(String $filename, String $filecontent)
+    public function upload(Homeagency $homeagency, System $system, String $filecontent, String $fileExtension)
     {
-        $new_file_path = $this->targetDirectory . $filename;
+        $new_file_path = $this->targetDirectory.$homeagency->getDirectoryname()."/".$system->getDirectoryName()."/".date('Ymdhis').".".$fileExtension;
         $this->filesystem->touch($new_file_path);
-        $this->filesystem->dumpFile($new_file_path, $filecontent);
-        //Droits du fichier: lecture, écriture, execution
         $this->filesystem->chmod($new_file_path, 0777);
+        $this->filesystem->dumpFile($new_file_path, $filecontent);
+        $fs=new Filesystem();
+        $fs->dumpFile($new_file_path, $filecontent);
+        var_dump("hellohellohelklohdsf");
         return $new_file_path;
     }
 

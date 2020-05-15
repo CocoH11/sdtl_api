@@ -53,6 +53,12 @@ class Refuel
      */
     private $system;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="refuels")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $homeagency;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -126,6 +132,18 @@ class Refuel
     public function setSystem(?System $system): self
     {
         $this->system = $system;
+
+        return $this;
+    }
+
+    public function getHomeagency(): ?Homeagency
+    {
+        return $this->homeagency;
+    }
+
+    public function setHomeagency(?Homeagency $homeagency): self
+    {
+        $this->homeagency = $homeagency;
 
         return $this;
     }

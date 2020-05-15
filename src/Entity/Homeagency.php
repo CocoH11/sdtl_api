@@ -32,6 +32,21 @@ class Homeagency
      */
     private $users;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Refuel", mappedBy="homeagency")
+     */
+    private $refuels;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $directoryname;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\System", inversedBy="homeagencies")
+     */
+    private $systems;
+
 
     public function __construct()
     {
@@ -39,6 +54,8 @@ class Homeagency
         $this->integrationmodels = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->drivers = new ArrayCollection();
+        $this->refuels = new ArrayCollection();
+        $this->systems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,6 +101,75 @@ class Homeagency
             if ($user->getHomeagency() === $this) {
                 $user->setHomeagency(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Refuel[]
+     */
+    public function getRefuels(): Collection
+    {
+        return $this->refuels;
+    }
+
+    public function addRefuel(Refuel $refuel): self
+    {
+        if (!$this->refuels->contains($refuel)) {
+            $this->refuels[] = $refuel;
+            $refuel->setHomeagency($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRefuel(Refuel $refuel): self
+    {
+        if ($this->refuels->contains($refuel)) {
+            $this->refuels->removeElement($refuel);
+            // set the owning side to null (unless already changed)
+            if ($refuel->getHomeagency() === $this) {
+                $refuel->setHomeagency(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getDirectoryname(): ?string
+    {
+        return $this->directoryname;
+    }
+
+    public function setDirectoryname(string $directoryname): self
+    {
+        $this->directoryname = $directoryname;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|System[]
+     */
+    public function getSystems(): Collection
+    {
+        return $this->systems;
+    }
+
+    public function addSystem(System $system): self
+    {
+        if (!$this->systems->contains($system)) {
+            $this->systems[] = $system;
+        }
+
+        return $this;
+    }
+
+    public function removeSystem(System $system): self
+    {
+        if ($this->systems->contains($system)) {
+            $this->systems->removeElement($system);
         }
 
         return $this;

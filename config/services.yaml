@@ -30,3 +30,6 @@ services:
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%files_directory%'
+    App\DataFixtures\DataFixture:
+        arguments:
+            $targetDirectory: '%files_directory%'

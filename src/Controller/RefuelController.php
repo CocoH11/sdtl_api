@@ -2,19 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\Driver;
-use App\Entity\Refuel;
-use App\Entity\Truck;
+use App\Entity\Homeagency;
+use App\Entity\User;
+use App\Entity\System;
 use App\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -50,14 +47,31 @@ class RefuelController extends AbstractController
      * @Route("/refuel/file", name="addFileRefuel", methods={"PUT"})
      */
     public function addFileRefuel(Request $request, FileUploader $fileUploader){
+        /*Data*/
         $data= json_decode($request->getContent(), true);
-        $newFileName=$fileUploader->upload($data["filename"], $data["data"]);
-        $file=new File($newFileName);
-        $fileExtension=$file->getExtension();
-        $fileUploader->deleteFile($newFileName);
-        return new JsonResponse();
+        $numSystem=$data["system"];
+        $filedata=base64_decode($data["data"]);
+        $fileExtension=$data["fileExtension"];
+        /*Choose Directory*/
+        $homeagency=$this->checkHomeAgency();
+        $system=$this->checkSystem($numSystem);
+
+        /*Save File*/
+        $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
+        //$file=new File($newFileName);
+        return new JsonResponse($this->getUser()->getRoles());
     }
 
+    public function checkSystem(int $sysValue){
+        $system=$this->getDoctrine()->getRepository(System::class)->find($sysValue);
+        return $system;
+    }
+
+    public function checkHomeAgency(){
+        $user= $this->getDoctrine()->getRepository(User::class)->find($this->getUser());
+        $homeagency=$user->getHomeAgency();
+        return $homeagency;
+    }
     /**
      * @Route("/refuel", name="testSecureLogin", methods={"POST"})
      */
