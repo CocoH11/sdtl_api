@@ -22,13 +22,12 @@ class FileUploader
 
     public function upload(Homeagency $homeagency, System $system, String $filecontent, String $fileExtension)
     {
-        $new_file_path = $this->targetDirectory.$homeagency->getDirectoryname()."/".$system->getDirectoryName()."/".date('Ymdhis').".".$fileExtension;
+        $new_file_path = $this->targetDirectory.$homeagency->getDirectoryname().$system->getDirectoryName()."/".date('Ymdhis').".".$fileExtension;
         $this->filesystem->touch($new_file_path);
         $this->filesystem->chmod($new_file_path, 0777);
         $this->filesystem->dumpFile($new_file_path, $filecontent);
         $fs=new Filesystem();
         $fs->dumpFile($new_file_path, $filecontent);
-        var_dump("hellohellohelklohdsf");
         return $new_file_path;
     }
 

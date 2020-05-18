@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Homeagency;
 use App\Entity\User;
 use App\Entity\System;
+use App\Service\FileExtractData;
 use App\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
@@ -46,19 +47,21 @@ class RefuelController extends AbstractController
     /**
      * @Route("/refuel/file", name="addFileRefuel", methods={"PUT"})
      */
-    public function addFileRefuel(Request $request, FileUploader $fileUploader){
+    public function addFileRefuel(Request $request, FileUploader $fileUploader, FileExtractData $fileExtractData){
         /*Data*/
         $data= json_decode($request->getContent(), true);
         $numSystem=$data["system"];
         $filedata=base64_decode($data["data"]);
         $fileExtension=$data["fileExtension"];
-        /*Choose Directory*/
+        /*Check the System and the HomeAgency*/
         $homeagency=$this->checkHomeAgency();
         $system=$this->checkSystem($numSystem);
-
         /*Save File*/
         $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
-        //$file=new File($newFileName);
+
+        /*Extract Data*/
+        $file=new File($newFileName);
+        $fileExtractData->extractDataFromFile($file, $system, $homeagency);
         return new JsonResponse($this->getUser()->getRoles());
     }
 
@@ -71,6 +74,22 @@ class RefuelController extends AbstractController
         $user= $this->getDoctrine()->getRepository(User::class)->find($this->getUser());
         $homeagency=$user->getHomeAgency();
         return $homeagency;
+    }
+
+    public function checkMimeType(File $file){
+        $mediaType="";
+        switch ($file->getMimeType()){
+            case "text/csv":
+                $mediaType="csv";
+                break;
+            case "application/vnd.ms-excel":
+                $mediaType="xls";
+                break;
+            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                $mediaType="xlsx";
+                break;
+        }
+        return $mediaType;
     }
     /**
      * @Route("/refuel", name="testSecureLogin", methods={"POST"})

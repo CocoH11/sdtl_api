@@ -33,16 +33,16 @@ class DataFixture extends Fixture
     public function loadHomeagency(ObjectManager $manager)
     {
         $dataHomeagencies = [
-            ["name" => "TC58", "directoryname"=>"TC58", "systems"=>[4,5]],
-            ["name" => "TC35", "directoryname"=>"TC35", "systems"=>[1,5]],
-            ["name" => "TC59", "directoryname"=>"TC59", "systems"=>[4,5]],
-            ["name" => "TC14", "directoryname"=>"TC14", "systems"=>[2,3]],
-            ["name" => "TC71", "directoryname"=>"TC71", "systems"=>[2,3,5]],
-            ["name" => "TC63", "directoryname"=>"TC63", "systems"=>[4,5]],
-            ["name" => "TC60", "directoryname"=>"TC60", "systems"=>[2,5]],
-            ["name" => "TC91", "directoryname"=>"TC91", "systems"=>[2,5]],
-            ["name" => "TC70", "directoryname"=>"TC70", "systems"=>[2,3,6]],
-            ["name" => "ALG", "directoryname"=>"ALG", "systems"=>[5]],
+            ["name" => "TC58", "directoryname"=>"TC58/", "systems"=>[4,5]],
+            ["name" => "TC35", "directoryname"=>"TC35/", "systems"=>[1,5]],
+            ["name" => "TC59", "directoryname"=>"TC59/", "systems"=>[4,5]],
+            ["name" => "TC14", "directoryname"=>"TC14/", "systems"=>[2,3]],
+            ["name" => "TC71", "directoryname"=>"TC71/", "systems"=>[2,3,5]],
+            ["name" => "TC63", "directoryname"=>"TC63/", "systems"=>[4,5]],
+            ["name" => "TC60", "directoryname"=>"TC60/", "systems"=>[2,5]],
+            ["name" => "TC91", "directoryname"=>"TC91/", "systems"=>[2,5]],
+            ["name" => "TC70", "directoryname"=>"TC70/", "systems"=>[2,3,6]],
+            ["name" => "ALG", "directoryname"=>"ALG/", "systems"=>[5]],
 
         ];
 
@@ -54,7 +54,7 @@ class DataFixture extends Fixture
             foreach ($homeagency["systems"] as $dataSystem){
                 $system=$manager->getRepository(System::class)->find($dataSystem);
                 $newHomeagency->addSystem($system);
-                $this->filesystem->mkdir($this->targetDirectory.$homeagency["directoryname"]."/".$system->getDirectoryName());
+                $this->filesystem->mkdir($this->targetDirectory.$homeagency["directoryname"].$system->getDirectoryName());
             }
             $manager->persist($newHomeagency);
         }
@@ -65,12 +65,12 @@ class DataFixture extends Fixture
     public function loadSystem(ObjectManager $manager)
     {
         $datasystems=[
-            ["name"=>"ids", "directoryname"=>"IDS"],
-            ["name"=>"as24", "directoryname"=>"AS24"],
-            ["name"=>"dkv", "directoryname"=>"DKV"],
-            ["name"=>"uta", "directoryname"=>"UTA"],
-            ["name"=>"lafont", "directoryname"=>"LAFFON"],
-            ["name"=>"tokheim", "directoryname"=>"TOKHEIM"]
+            ["name"=>"ids", "directoryname"=>"IDS/"],
+            ["name"=>"as24", "directoryname"=>"AS24/"],
+            ["name"=>"dkv", "directoryname"=>"DKV/"],
+            ["name"=>"uta", "directoryname"=>"UTA/"],
+            ["name"=>"laffon", "directoryname"=>"LAFFON/"],
+            ["name"=>"tokheim", "directoryname"=>"TOKHEIM/"]
         ];
 
         foreach ($datasystems as $system){
@@ -90,7 +90,8 @@ class DataFixture extends Fixture
         $users=[
             ["login"=>"cholcvart", "password"=>"dinosaure0", "roles"=>["ROLE_USER", "ROLE_ADMIN"], "homeagency"=>1],
             ["login"=>"dholcvart", "password"=>"dinosaure1", "roles"=>["ROLE_USER"], "homeagency"=>1],
-            ["login"=>"aholcvart", "password"=>"dinosaure2", "roles"=>["ROLE_USER"], "homeagency"=>2]
+            ["login"=>"aholcvart", "password"=>"dinosaure2", "roles"=>["ROLE_USER"], "homeagency"=>2],
+            ["login"=>"bholcvart", "password"=>"dinosaure3", "roles"=>["ROLE_USER"], "homeagency"=>9]
         ];
 
         foreach ($users as $user){

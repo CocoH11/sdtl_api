@@ -19,23 +19,9 @@ class Refuel
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
-     * @Assert\LessThanOrEqual(
-     *     value=200,
-     *     message="le volume de carburant n'est pas valide"
-     * )
+     * @ORM\Column(type="float")
      */
     private $volume;
-
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $date;
-
-    /**
-     * @ORM\Column(type="time")
-     */
-    private $time;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -59,45 +45,14 @@ class Refuel
      */
     private $homeagency;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $date;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getVolume(): ?int
-    {
-        return $this->volume;
-    }
-
-    public function setVolume(int $volume): self
-    {
-        $this->volume = $volume;
-
-        return $this;
-    }
-
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
-    public function getTime(): ?\DateTimeInterface
-    {
-        return $this->time;
-    }
-
-    public function setTime(\DateTimeInterface $time): self
-    {
-        $this->time = $time;
-
-        return $this;
     }
 
     public function getCodeCard(): ?string
@@ -144,6 +99,30 @@ class Refuel
     public function setHomeagency(?Homeagency $homeagency): self
     {
         $this->homeagency = $homeagency;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getVolume(): ?float
+    {
+        return $this->volume;
+    }
+
+    public function setVolume(float $volume): self
+    {
+        $this->volume = $volume;
 
         return $this;
     }
