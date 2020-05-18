@@ -50,6 +50,11 @@ class Refuel
      */
     private $date;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $stationLocation;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,6 +128,18 @@ class Refuel
     public function setVolume(float $volume): self
     {
         $this->volume = $volume;
+
+        return $this;
+    }
+
+    public function getStationLocation(): ?string
+    {
+        return $this->stationLocation;
+    }
+
+    public function setStationLocation(string $stationLocation): self
+    {
+        $this->stationLocation = $stationLocation;
 
         return $this;
     }
