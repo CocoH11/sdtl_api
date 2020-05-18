@@ -60,6 +60,11 @@ class Refuel
      */
     private $typeProduit;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $mileage;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -157,6 +162,18 @@ class Refuel
     public function setTypeProduit(string $typeProduit): self
     {
         $this->typeProduit = $typeProduit;
+
+        return $this;
+    }
+
+    public function getMileage(): ?int
+    {
+        return $this->mileage;
+    }
+
+    public function setMileage(int $mileage): self
+    {
+        $this->mileage = $mileage;
 
         return $this;
     }

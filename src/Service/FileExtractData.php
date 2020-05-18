@@ -86,6 +86,34 @@ class FileExtractData
     }
 
     public function extractDataFromFileTOKHEIM(File $file, System $system, Homeagency $homeagency){
+        $readable=fopen($file->getPathname(), 'r');
+        $count=0;
+        if ($readable){
+            while(($buffer=fgetcsv($readable, 1000, ";")) !==false){
+                if ($count==0){
+                    $count++;
+                    continue;
+                }
+                $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[5].$buffer[6]);
+                $new_refuel=new Refuel();
+                $new_refuel->setCodeCard($buffer[1]);
+                $new_refuel->setCodeDriver($buffer[4]);
+                $new_refuel->setDate($date);
+                $new_refuel->setTypeProduit($buffer[0]);
+                $new_refuel->setMileage(intval($buffer[2]));
+                $new_refuel->setVolume(floatval($buffer[7]));
+                $new_refuel->setStationLocation($homeagency->getName());
+                $new_refuel->setSystem($system);
+                $new_refuel->setHomeagency($homeagency);
+                $this->manager->persist($new_refuel);
+            }
+            var_dump("helloworld");
+            $this->manager->flush();
+            if (!feof($readable)) {
+                echo "Erreur: fgets() a échoué\n";
+            }
+            fclose($readable);
+        }
         return "";
     }
 
