@@ -55,6 +55,11 @@ class Refuel
      */
     private $stationLocation;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $typeProduit;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -140,6 +145,18 @@ class Refuel
     public function setStationLocation(string $stationLocation): self
     {
         $this->stationLocation = $stationLocation;
+
+        return $this;
+    }
+
+    public function getTypeProduit(): ?string
+    {
+        return $this->typeProduit;
+    }
+
+    public function setTypeProduit(string $typeProduit): self
+    {
+        $this->typeProduit = $typeProduit;
 
         return $this;
     }

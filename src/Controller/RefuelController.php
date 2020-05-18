@@ -31,6 +31,7 @@ class RefuelController extends AbstractController
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
      */
     public function addRefuels(Request $request, ValidatorInterface $validator){
+
     }
 
     /**
