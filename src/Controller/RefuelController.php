@@ -60,6 +60,7 @@ class RefuelController extends AbstractController
         /*Save File*/
         $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
 
+
         /*Extract Data*/
         $file=new File($newFileName);
         $fileExtractData->extractDataFromFile($file, $system, $homeagency);

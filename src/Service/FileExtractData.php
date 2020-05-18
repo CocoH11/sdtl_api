@@ -9,6 +9,8 @@ use App\Entity\Refuel;
 use App\Entity\System;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use Symfony\Component\HttpFoundation\File\File;
 
 class FileExtractData
@@ -118,6 +120,36 @@ class FileExtractData
     }
 
     public function extractDataFromFileIDS(File $file, System $system, Homeagency $homeagency){
+        $readable=fopen($file->getPathname(), 'r');
+        $count=0;
+        if ($readable){
+            while (($buffer=fgetcsv($readable, 1000, "\t"))!==false){
+                if ($count==0){
+                    $count++;
+                    continue;
+                }
+                $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[13].$buffer[14]);
+                $new_refuel=new Refuel();
+                $new_refuel->setStationLocation($buffer[9]);
+                $new_refuel->setDate($date);
+                $new_refuel->setCodeCard($buffer[12]);
+                $new_refuel->setCodeDriver($buffer[16]);
+                $new_refuel->setVolume(floatval($buffer[29]));
+                $new_refuel->setTypeProduit($buffer[28]);
+                $new_refuel->setMileage($buffer[15]);
+                $new_refuel->setSystem($system);
+                $new_refuel->setHomeagency($homeagency);
+                $this->manager->persist($new_refuel);
+            }
+            $this->manager->flush();
+            if (!feof($readable)) {
+                echo "Erreur: fgets() a échoué\n";
+            }
+            fclose($readable);
+
+            var_dump($buffer);
+        }
+
 
     }
 
