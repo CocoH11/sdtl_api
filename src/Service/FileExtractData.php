@@ -5,6 +5,7 @@ namespace App\Service;
 
 
 use App\Entity\Homeagency;
+use App\Entity\Product;
 use App\Entity\Refuel;
 use App\Entity\System;
 use DateTime;
@@ -54,12 +55,14 @@ class FileExtractData
                 $line=preg_split("[\s{2,}]", $buffer);
                 $new_refuel=new Refuel();
                 $date= DateTime::createFromFormat("YmdHi", substr($line[1], 0, 12));
+                if (substr($line[1], 22, strlen($line[1])-22)==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
+                else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $new_refuel->setDate($date);
                 $new_refuel->setCodeCard(substr($line[1], 12, 4));
                 $new_refuel->setCodeDriver(substr($line[1], 16, 4));
                 $new_refuel->setVolume(floatval(substr($line[2], 0, 4).".".substr($line[2], 4, 2)));
                 $new_refuel->setStationLocation(substr($line[0], 13, strlen($line[0])-12));
-                $new_refuel->setTypeProduit(substr($line[1], 22, strlen($line[1])-22));
+                $new_refuel->setProduct($product);
                 $new_refuel->setMileage(intval(substr($line[2], 100, 9)));
                 var_dump(substr($line[2], 100, 9));
                 $new_refuel->setSystem($system);
@@ -97,11 +100,13 @@ class FileExtractData
                     continue;
                 }
                 $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[5].$buffer[6]);
+                if ($buffer[0]==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
+                else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $new_refuel=new Refuel();
                 $new_refuel->setCodeCard($buffer[1]);
                 $new_refuel->setCodeDriver($buffer[4]);
                 $new_refuel->setDate($date);
-                $new_refuel->setTypeProduit($buffer[0]);
+                $new_refuel->setProduct($product);
                 $new_refuel->setMileage(intval($buffer[2]));
                 $new_refuel->setVolume(floatval($buffer[7]));
                 $new_refuel->setStationLocation($homeagency->getName());
@@ -129,13 +134,15 @@ class FileExtractData
                     continue;
                 }
                 $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[13].$buffer[14]);
+                if ($buffer[28]==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
+                else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $new_refuel=new Refuel();
                 $new_refuel->setStationLocation($buffer[9]);
                 $new_refuel->setDate($date);
                 $new_refuel->setCodeCard($buffer[12]);
                 $new_refuel->setCodeDriver($buffer[16]);
                 $new_refuel->setVolume(floatval($buffer[29]));
-                $new_refuel->setTypeProduit($buffer[28]);
+                $new_refuel->setProduct($product);
                 $new_refuel->setMileage($buffer[15]);
                 $new_refuel->setSystem($system);
                 $new_refuel->setHomeagency($homeagency);

@@ -56,14 +56,15 @@ class Refuel
     private $stationLocation;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $typeProduit;
-
-    /**
      * @ORM\Column(type="integer")
      */
     private $mileage;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="refuels")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $product;
 
     public function getId(): ?int
     {
@@ -154,18 +155,6 @@ class Refuel
         return $this;
     }
 
-    public function getTypeProduit(): ?string
-    {
-        return $this->typeProduit;
-    }
-
-    public function setTypeProduit(string $typeProduit): self
-    {
-        $this->typeProduit = $typeProduit;
-
-        return $this;
-    }
-
     public function getMileage(): ?int
     {
         return $this->mileage;
@@ -174,6 +163,18 @@ class Refuel
     public function setMileage(int $mileage): self
     {
         $this->mileage = $mileage;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): self
+    {
+        $this->product = $product;
 
         return $this;
     }

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 
 use App\Entity\Homeagency;
+use App\Entity\Product;
 use App\Entity\System;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -25,6 +26,7 @@ class DataFixture extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        $this->loadProduct($manager);
         $this->loadSystem($manager);
         $this->loadHomeagency($manager);
         $this->loadUser($manager);
@@ -65,18 +67,20 @@ class DataFixture extends Fixture
     public function loadSystem(ObjectManager $manager)
     {
         $datasystems=[
-            ["name"=>"ids", "directoryname"=>"IDS/"],
-            ["name"=>"as24", "directoryname"=>"AS24/"],
-            ["name"=>"dkv", "directoryname"=>"DKV/"],
-            ["name"=>"uta", "directoryname"=>"UTA/"],
-            ["name"=>"laffon", "directoryname"=>"LAFFON/"],
-            ["name"=>"tokheim", "directoryname"=>"TOKHEIM/"]
+            ["name"=>"ids", "directoryname"=>"IDS/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"UREA (Ad Blue)"],
+            ["name"=>"as24", "directoryname"=>"AS24/", "dieselFileLabel"=>"à changer", "adblueFileLabel"=>"à changer"],
+            ["name"=>"dkv", "directoryname"=>"DKV/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"UREA (Ad Blue)"],
+            ["name"=>"uta", "directoryname"=>"UTA/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"AdBlue"],
+            ["name"=>"laffon", "directoryname"=>"LAFFON/", "dieselFileLabel"=>"GASOIL", "adblueFileLabel"=>"à changer"],
+            ["name"=>"tokheim", "directoryname"=>"TOKHEIM/", "dieselFileLabel"=>"Gasoil_Transics", "adblueFileLabel"=>"ADBLUE_Transics"]
         ];
 
         foreach ($datasystems as $system){
             $newsystem= new System();
             $newsystem->setName($system["name"]);
             $newsystem->setDirectoryName($system["directoryname"]);
+            $newsystem->setDieselFileLabel($system["dieselFileLabel"]);
+            $newsystem->setAdblueFielLabel($system["adblueFileLabel"]);
             $manager->persist($newsystem);
         }
         // $product = new Product();
@@ -106,5 +110,19 @@ class DataFixture extends Fixture
         }
         $manager->flush();
         var_dump("hello");
+    }
+
+    public function loadProduct(ObjectManager $manager){
+        $products=[
+            ["name"=>"DIESEL"],
+            ["name"=>"ADBLUE"]
+        ];
+
+        foreach ($products as $product){
+            $newproduct=new Product();
+            $newproduct->setName($product["name"]);
+            $manager->persist($newproduct);
+        }
+        $manager->flush();
     }
 }

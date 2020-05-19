@@ -38,6 +38,16 @@ class System
      */
     private $homeagencies;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $dieselFileLabel;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $adblueFielLabel;
+
     public function __construct()
     {
         $this->refuels = new ArrayCollection();
@@ -128,6 +138,30 @@ class System
             $this->homeagencies->removeElement($homeagency);
             $homeagency->removeSystem($this);
         }
+
+        return $this;
+    }
+
+    public function getDieselFileLabel(): ?string
+    {
+        return $this->dieselFileLabel;
+    }
+
+    public function setDieselFileLabel(string $dieselFileLabel): self
+    {
+        $this->dieselFileLabel = $dieselFileLabel;
+
+        return $this;
+    }
+
+    public function getAdblueFielLabel(): ?string
+    {
+        return $this->adblueFielLabel;
+    }
+
+    public function setAdblueFielLabel(string $adblueFielLabel): self
+    {
+        $this->adblueFielLabel = $adblueFielLabel;
 
         return $this;
     }
