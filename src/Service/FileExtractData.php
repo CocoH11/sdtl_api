@@ -12,6 +12,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Symfony\Component\HttpFoundation\File\File;
 
 class FileExtractData
@@ -83,6 +84,31 @@ class FileExtractData
     }
 
     public function extractDataFromFileUTA(File $file, System $system, Homeagency $homeagency){
+        $reader=new Xlsx();
+        $spreadsheet=$reader->load($file->getPathname());
+        $sheet=$spreadsheet->getActiveSheet();
+
+        for ($i=3; $i<$sheet->getHighestRow()+1; $i++){
+            var_dump($sheet->getCell("E".$i)->getValue());
+            $productLabel=strval($sheet->getCell("M".$i)->getValue());
+            if ($productLabel==$system->getDieselFileLabel() || $productLabel==$system->getAdblueFielLabel()){
+                $date=DateTime::createFromFormat("d.m.YH:i:s", $sheet->getCell("A".$i)->getValue().$sheet->getCell("B".$i)->getValue());
+                if ($productLabel==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
+                else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
+                $newrefuel= new Refuel();
+                $newrefuel->setCodeCard(strval($sheet->getCell("I".$i)->getValue()));
+                $newrefuel->setCodeDriver(strval($sheet->getCell("I".$i)->getValue()));
+                $newrefuel->setVolume(floatval($sheet->getCell("O".$i)->getValue()));
+                $newrefuel->setMileage(floatval($sheet->getCell("J".$i)->getValue()));
+                $newrefuel->setStationLocation($sheet->getCell("E".$i)->getValue());
+                $newrefuel->setDate($date);
+                $newrefuel->setProduct($product);
+                $newrefuel->setSystem($system);
+                $newrefuel->setHomeagency($homeagency);
+                $this->manager->persist($newrefuel);
+            }
+        }
+        $this->manager->flush();
         return "";
     }
 
@@ -114,7 +140,6 @@ class FileExtractData
                 $new_refuel->setHomeagency($homeagency);
                 $this->manager->persist($new_refuel);
             }
-            var_dump("helloworld");
             $this->manager->flush();
             if (!feof($readable)) {
                 echo "Erreur: fgets() a échoué\n";
@@ -153,8 +178,6 @@ class FileExtractData
                 echo "Erreur: fgets() a échoué\n";
             }
             fclose($readable);
-
-            var_dump($buffer);
         }
 
 

@@ -70,7 +70,7 @@ class DataFixture extends Fixture
             ["name"=>"ids", "directoryname"=>"IDS/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"UREA (Ad Blue)"],
             ["name"=>"as24", "directoryname"=>"AS24/", "dieselFileLabel"=>"à changer", "adblueFileLabel"=>"à changer"],
             ["name"=>"dkv", "directoryname"=>"DKV/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"UREA (Ad Blue)"],
-            ["name"=>"uta", "directoryname"=>"UTA/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"AdBlue"],
+            ["name"=>"uta", "directoryname"=>"UTA/", "dieselFileLabel"=>"Gasoil", "adblueFileLabel"=>"AdBlue"],
             ["name"=>"laffon", "directoryname"=>"LAFFON/", "dieselFileLabel"=>"GASOIL", "adblueFileLabel"=>"à changer"],
             ["name"=>"tokheim", "directoryname"=>"TOKHEIM/", "dieselFileLabel"=>"Gasoil_Transics", "adblueFileLabel"=>"ADBLUE_Transics"]
         ];
