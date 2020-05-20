@@ -72,7 +72,8 @@ class DataFixture extends Fixture
             ["name"=>"dkv", "directoryname"=>"DKV/", "dieselFileLabel"=>"Diesel", "adblueFileLabel"=>"UREA (Ad Blue)"],
             ["name"=>"uta", "directoryname"=>"UTA/", "dieselFileLabel"=>"Gasoil", "adblueFileLabel"=>"AdBlue"],
             ["name"=>"laffon", "directoryname"=>"LAFFON/", "dieselFileLabel"=>"GASOIL", "adblueFileLabel"=>"à changer"],
-            ["name"=>"tokheim", "directoryname"=>"TOKHEIM/", "dieselFileLabel"=>"Gasoil_Transics", "adblueFileLabel"=>"ADBLUE_Transics"]
+            ["name"=>"tokheim", "directoryname"=>"TOKHEIM/", "dieselFileLabel"=>"Gasoil_Transics", "adblueFileLabel"=>"ADBLUE_Transics"],
+            ["name"=>"manualentry", "directoryname"=>"MANUALENTRY/", "dieselFileLabel"=>"diesel", "adblueFileLabel"=>"adblue"]
         ];
 
         foreach ($datasystems as $system){

@@ -14,45 +14,51 @@ use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FileExtractData
 {
     private $manager;
+    private $validator;
 
-    public function __construct(EntityManagerInterface $manager)
+    public function __construct(EntityManagerInterface $manager, ValidatorInterface $validator)
     {
      $this->manager=$manager;
+     $this->validator=$validator;
     }
 
     public function extractDataFromFile(File $file, System $system, Homeagency $homeagency)
     {
+        $refuelserrors=[];
         switch ($system->getName()){
             case "as24":
-                $this->extractDataFromFileAS24($file, $system, $homeagency);
+                $this->extractDataFromFileAS24($file, $system, $homeagency, $refuelserrors);
                 break;
             case "dkv":
-                $this->extractDataFromFileDKV($file, $system, $homeagency);
+                $this->extractDataFromFileDKV($file, $system, $homeagency, $refuelserrors);
                 break;
             case "uta":
-                $this->extractDataFromFileUTA($file, $system, $homeagency);
+                $this->extractDataFromFileUTA($file, $system, $homeagency, $refuelserrors);
                 break;
             case "ids":
-                $this->extractDataFromFileIDS($file, $system, $homeagency);
+                $this->extractDataFromFileIDS($file, $system, $homeagency, $refuelserrors);
                 break;
             case "laffon":
-                $this->extractDataFromFileLAFFON($file, $system, $homeagency);
+                $this->extractDataFromFileLAFFON($file, $system, $homeagency, $refuelserrors);
                 break;
             case "tokheim":
-                $this->extractDataFromFileTOKHEIM($file, $system, $homeagency);
+                $this->extractDataFromFileTOKHEIM($file, $system, $homeagency, $refuelserrors);
                 break;
         }
+        return $refuelserrors;
 
     }
 
-    public function extractDataFromFileAS24(File $file, System $system, Homeagency $homeagency){
+    public function extractDataFromFileAS24(File $file, System $system, Homeagency $homeagency, array $refuelserrors){
         $readable=fopen($file->getPathname(), 'r');
         if ($readable) {
             while (($buffer = fgets($readable)) !== false) {
+
                 $line=preg_split("[\s{2,}]", $buffer);
                 $new_refuel=new Refuel();
                 $date= DateTime::createFromFormat("YmdHi", substr($line[1], 0, 12));
@@ -68,7 +74,9 @@ class FileExtractData
                 var_dump(substr($line[2], 100, 9));
                 $new_refuel->setSystem($system);
                 $new_refuel->setHomeagency($homeagency);
-                $this->manager->persist($new_refuel);
+                $refuelerrors=$this->validator->validate($new_refuel);
+                if (count($refuelserrors)==0)$this->manager->persist($new_refuel);
+                array_push($refuelserrors, $refuelerrors);
             }
             $this->manager->flush();
             if (!feof($readable)) {
@@ -79,11 +87,11 @@ class FileExtractData
         return "";
     }
 
-    public function extractDataFromFileDKV(File $file, System $system, Homeagency $homeagency){
+    public function extractDataFromFileDKV(File $file, System $system, Homeagency $homeagency, array $refuelserrors){
         return "";
     }
 
-    public function extractDataFromFileUTA(File $file, System $system, Homeagency $homeagency){
+    public function extractDataFromFileUTA(File $file, System $system, Homeagency $homeagency, array $refuelserrors){
         $reader=new Xlsx();
         $spreadsheet=$reader->load($file->getPathname());
         $sheet=$spreadsheet->getActiveSheet();
@@ -105,18 +113,20 @@ class FileExtractData
                 $newrefuel->setProduct($product);
                 $newrefuel->setSystem($system);
                 $newrefuel->setHomeagency($homeagency);
-                $this->manager->persist($newrefuel);
+                $refuelerrors=$this->validator->validate($newrefuel);
+                if (count($refuelserrors)==0)$this->manager->persist($newrefuel);
+                array_push($refuelserrors, $refuelerrors);
             }
         }
         $this->manager->flush();
         return "";
     }
 
-    public function extractDataFromFileLAFFON(File $file, System $system, Homeagency $homeagency){
+    public function extractDataFromFileLAFFON(File $file, System $system, Homeagency $homeagency, array $refuelserrors){
         return "";
     }
 
-    public function extractDataFromFileTOKHEIM(File $file, System $system, Homeagency $homeagency){
+    public function extractDataFromFileTOKHEIM(File $file, System $system, Homeagency $homeagency, array $refuelserrors){
         $readable=fopen($file->getPathname(), 'r');
         $count=0;
         if ($readable){
@@ -138,7 +148,9 @@ class FileExtractData
                 $new_refuel->setStationLocation($homeagency->getName());
                 $new_refuel->setSystem($system);
                 $new_refuel->setHomeagency($homeagency);
-                $this->manager->persist($new_refuel);
+                $refuelerrors=$this->validator->validate($new_refuel);
+                if (count($refuelserrors)==0)$this->manager->persist($new_refuel);
+                array_push($refuelserrors, $refuelerrors);
             }
             $this->manager->flush();
             if (!feof($readable)) {
@@ -149,7 +161,7 @@ class FileExtractData
         return "";
     }
 
-    public function extractDataFromFileIDS(File $file, System $system, Homeagency $homeagency){
+    public function extractDataFromFileIDS(File $file, System $system, Homeagency $homeagency, array $refuelserrors){
         $readable=fopen($file->getPathname(), 'r');
         $count=0;
         if ($readable){
@@ -171,7 +183,9 @@ class FileExtractData
                 $new_refuel->setMileage($buffer[15]);
                 $new_refuel->setSystem($system);
                 $new_refuel->setHomeagency($homeagency);
-                $this->manager->persist($new_refuel);
+                $refuelerrors=$this->validator->validate($new_refuel);
+                if (count($refuelserrors)==0)$this->manager->persist($new_refuel);
+                array_push($refuelserrors, $refuelerrors);
             }
             $this->manager->flush();
             if (!feof($readable)) {

@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Homeagency;
+use App\Entity\Product;
+use App\Entity\Refuel;
 use App\Entity\User;
 use App\Entity\System;
 use App\Service\FileExtractData;
@@ -31,6 +33,30 @@ class RefuelController extends AbstractController
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
      */
     public function addRefuels(Request $request, ValidatorInterface $validator){
+        $data=json_decode($request->getContent(), true);
+        $homeagency=$this->checkHomeAgency();
+        $refuelserrors=[];
+        $system=$this->getDoctrine()->getRepository(System::class)->find(1);
+        foreach ($data["refuels"] as $refuel){
+            $system=$this->getDoctrine()->getRepository(System::class)->find($refuel["system"]);
+            if ($refuel["product"]==$system->getDieselFileLabel())$product=$this->getDoctrine()->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
+            else $product=$this->getDoctrine()->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
+            $newrefuel=new Refuel();
+            $newrefuel->setCodeCard($refuel["codecard"]);
+            $newrefuel->setCodeDriver($refuel["codedriver"]);
+            $newrefuel->setVolume($refuel["volume"]);
+            $newrefuel->setMileage($refuel["mileage"]);
+            $newrefuel->setStationLocation($refuel["stationlocation"]);
+            $newrefuel->setDate(\DateTime::createFromFormat("m-d-Y", $refuel["date"]));
+            $newrefuel->setProduct($product);
+            $newrefuel->setSystem($system);
+            $newrefuel->setHomeagency($homeagency);
+            $refuelerrors=$validator->validate($newrefuel);
+            if (count($refuelserrors)==0)$this->getDoctrine()->getManager()->persist($newrefuel);
+            array_push($refuelserrors, $refuelerrors);
+        }
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse($refuelserrors);
 
     }
 

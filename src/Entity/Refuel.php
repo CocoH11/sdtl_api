@@ -20,16 +20,23 @@ class Refuel
 
     /**
      * @ORM\Column(type="float")
+     * @Assert\NotNull(message="No volume available")
+     * @Assert\Positive(message="The volume specified is abnormal")
+     * @Assert\LessThan(value="1000", message="The volume specified is abnormal")
      */
     private $volume;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotNull(message="No card code available")
+     * @Assert\NotBlank(message="No card code available")
      */
     private $codeCard;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotNull(message="No Driver code available")
+     * @Assert\NotBlank(message="No Driver code available")
      */
     private $codeDriver;
 
@@ -47,16 +54,24 @@ class Refuel
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\NotNull(message="No date available")
+     * @Assert\NotBlank(message="no date available")
+     * @Assert\LessThan("-20 years")
      */
     private $date;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotNull(message="No station location available")
+     * @Assert\NotBlank(message="No station location available")
      */
     private $stationLocation;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotNull(message="No mileage available")
+     * @Assert\Positive(message="The mileage specified is abnormal")
+     * @Assert\LessThan(value="500000000", message="The mileage specified is abnormal")
      */
     private $mileage;
 
