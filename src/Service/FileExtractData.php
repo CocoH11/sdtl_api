@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -38,6 +39,7 @@ class FileExtractData
                 $this->extractDataFromFileDKV($file, $system, $homeagency, $refuelserrors);
                 break;
             case "uta":
+
                 $this->extractDataFromFileUTA($file, $system, $homeagency, $refuelserrors);
                 break;
             case "ids":
@@ -193,8 +195,13 @@ class FileExtractData
             }
             fclose($readable);
         }
+    }
 
-
+    public function convertXLSXtoCSV(String $pathname){
+        $reader=new Xlsx();
+        $spreadsheet=$reader->load($pathname);
+        $fileCsv=new Csv($spreadsheet);
+        $fileCsv->save("hello");
     }
 
 }

@@ -64,7 +64,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        $expireTimeAuthentication = time() +60;
+        $expireTimeAuthentication = time() +3600;
         $tokenPayloadAuthentication = [
             'user_id' => $token->getUser()->getId(),
             'login'   => $token->getUser()->getUsername(),
@@ -72,21 +72,17 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
         ];
         $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, "string");
 
-        $expireTimeRefresh = time() + 3600;
+        /*$expireTimeRefresh = time() + 3600;
         $tokenPayLoadRefresh=[
             'user_id'=>$token->getUser()->getId(),
             'password'=>$token->getUser()->getUsername(),
             'exp'=>$expireTimeRefresh
         ];
-        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");
+        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");*/
 
         setcookie("jwtAuthentication", $jwtAuthentication,null);
-        setcookie("jwtRefresh", $jwtRefresh);
-        $response=new JsonResponse([
-            'result'=>true
-        ]);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        //setcookie("jwtRefresh", $jwtRefresh);
+        return null;
     }
 
     public function start(Request $request, AuthenticationException $authException = null)

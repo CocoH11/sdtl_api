@@ -9,6 +9,8 @@ use App\Entity\User;
 use App\Entity\System;
 use App\Service\FileExtractData;
 use App\Service\FileUploader;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,11 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class RefuelController extends AbstractController
 {
-    /**
-     * @Route("/refuel", name="addRefuel", methods={"PUT"})
-     */
-    public function addRefuel(Request $request, ValidatorInterface $validator){
-    }
     /**
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
      */
@@ -64,12 +61,21 @@ class RefuelController extends AbstractController
      * @Route("/refuel/{id}", name="deleteRefuel", methods={"DELETE"})
      */
     public function deleteRefuel(Request $request, int $id){
+        $refuel=$this->getDoctrine()->getRepository(Refuel::class)->find($id);
+        $this->getDoctrine()->getManager()->remove($refuel);
+        $this->getDoctrine()->getManager()->flush();
     }
 
     /**
      * @Route("/refuel/{id}", name="updateRefuel", methods={"PATCH"})
      */
-    public function updateRefuel(Request $request,int $id){}
+    public function updateRefuel(Request $request,int $id){
+        $data=json_decode($request->getContent(), true);
+        $refuel=$this->getDoctrine()->getRepository(Refuel::class)->find($id);
+        $keys=array_keys($data["refuel"]);
+
+        
+    }
 
     /**
      * @Route("/refuel/file", name="addFileRefuel", methods={"PUT"})
@@ -87,9 +93,16 @@ class RefuelController extends AbstractController
         $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
 
 
+
         /*Extract Data*/
         $file=new File($newFileName);
         $fileExtractData->extractDataFromFile($file, $system, $homeagency);
+
+        $reader=new Xlsx();
+        $spreadsheet=$reader->load($file->getPathname());
+
+        $fileCsv=new Csv($spreadsheet);
+        $fileCsv->save("hello");
         return new JsonResponse($this->getUser()->getRoles());
     }
 
