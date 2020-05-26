@@ -56,7 +56,8 @@ class Refuel
      * @ORM\Column(type="datetime")
      * @Assert\NotNull(message="No date available")
      * @Assert\NotBlank(message="no date available")
-     * @Assert\LessThan("-20 years")
+     * @Assert\Type(type="datetime", message="the date is not valide")
+     * @Assert\GreaterThan("-20 years")
      */
     private $date;
 

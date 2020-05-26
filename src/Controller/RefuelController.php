@@ -9,18 +9,23 @@ use App\Entity\User;
 use App\Entity\System;
 use App\Service\FileExtractData;
 use App\Service\FileUploader;
+use Doctrine\Persistence\ManagerRegistry;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ValidatorBuilder;
 
 /**
  * Class RefuelController
+ * @property ManagerRegistry getDoctrine
  * @package App\Controller
  * @Route("/api")
  */
@@ -28,29 +33,41 @@ class RefuelController extends AbstractController
 {
     /**
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @return JsonResponse
      */
-    public function addRefuels(Request $request, ValidatorInterface $validator){
+    public function addRefuels(Request $request, ValidatorInterface $validator): JsonResponse
+    {
         $data=json_decode($request->getContent(), true);
         $homeagency=$this->checkHomeAgency();
         $refuelserrors=[];
         $system=$this->getDoctrine()->getRepository(System::class)->find(1);
+        $numLine=0;
         foreach ($data["refuels"] as $refuel){
             $system=$this->getDoctrine()->getRepository(System::class)->find($refuel["system"]);
-            if ($refuel["product"]==$system->getDieselFileLabel())$product=$this->getDoctrine()->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
-            else $product=$this->getDoctrine()->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
+            $product=$this->getDoctrine()->getRepository(Product::class)->find($refuel["product"]);
+            $date=\DateTime::createFromFormat("m-d-Y", $refuel["date"]);
+            if (!$date)$date=null;
             $newrefuel=new Refuel();
             $newrefuel->setCodeCard($refuel["codecard"]);
             $newrefuel->setCodeDriver($refuel["codedriver"]);
             $newrefuel->setVolume($refuel["volume"]);
             $newrefuel->setMileage($refuel["mileage"]);
             $newrefuel->setStationLocation($refuel["stationlocation"]);
-            $newrefuel->setDate(\DateTime::createFromFormat("m-d-Y", $refuel["date"]));
+            $newrefuel->setDate($date);
             $newrefuel->setProduct($product);
             $newrefuel->setSystem($system);
             $newrefuel->setHomeagency($homeagency);
-            $refuelerrors=$validator->validate($newrefuel);
-            if (count($refuelserrors)==0)$this->getDoctrine()->getManager()->persist($newrefuel);
-            array_push($refuelserrors, $refuelerrors);
+            $errors=$validator->validate($newrefuel);
+            if (count($errors)==0) {
+                $tab_errors = [];
+                for ($i = 0; $i < count($errors); $i++) {
+                    array_push($tab_errors, $errors->get($i)->getMessage());
+                }
+                array_push($refuelserrors, [$numLine, $tab_errors]);
+            }else $this->getDoctrine()->getManager()->persist($newrefuel);
+            $numLine++;
         }
         $this->getDoctrine()->getManager()->flush();
         return new JsonResponse($refuelserrors);
@@ -59,22 +76,28 @@ class RefuelController extends AbstractController
 
     /**
      * @Route("/refuel/{id}", name="deleteRefuel", methods={"DELETE"})
+     * @ParamConverter(name="refuel", class="App:Refuel")
+     * @param Request $request
+     * @param Refuel $refuel
+     * @return JsonResponse
      */
-    public function deleteRefuel(Request $request, int $id){
-        $refuel=$this->getDoctrine()->getRepository(Refuel::class)->find($id);
+    public function deleteRefuel(Request $request, Refuel $refuel){
         $this->getDoctrine()->getManager()->remove($refuel);
         $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse($refuel);
     }
 
     /**
      * @Route("/refuel/{id}", name="updateRefuel", methods={"PATCH"})
+     * @ParamConverter(name="refuel", class="App:Refuel")
+     * @param Request $request
+     * @param Refuel $refuel
+     * @return JsonResponse
      */
-    public function updateRefuel(Request $request,int $id){
+    public function updateRefuel(Request $request,Refuel $refuel){
         $data=json_decode($request->getContent(), true);
-        $refuel=$this->getDoctrine()->getRepository(Refuel::class)->find($id);
         $keys=array_keys($data["refuel"]);
-
-        
+        return new JsonResponse($refuel);
     }
 
     /**
@@ -91,19 +114,10 @@ class RefuelController extends AbstractController
         $system=$this->checkSystem($numSystem);
         /*Save File*/
         $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
-
-
-
         /*Extract Data*/
         $file=new File($newFileName);
-        $fileExtractData->extractDataFromFile($file, $system, $homeagency);
-
-        $reader=new Xlsx();
-        $spreadsheet=$reader->load($file->getPathname());
-
-        $fileCsv=new Csv($spreadsheet);
-        $fileCsv->save("hello");
-        return new JsonResponse($this->getUser()->getRoles());
+        $refuelserrors=$fileExtractData->extractDataFromFile($file, $system, $homeagency);
+        return new JsonResponse($refuelserrors);
     }
 
     public function checkSystem(int $sysValue){
@@ -131,11 +145,5 @@ class RefuelController extends AbstractController
                 break;
         }
         return $mediaType;
-    }
-    /**
-     * @Route("/refuel", name="testSecureLogin", methods={"POST"})
-     */
-    public function testSecureLogin(){
-        return new Response("testSecureLogin");
     }
 }
