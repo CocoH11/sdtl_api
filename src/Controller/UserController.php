@@ -33,35 +33,11 @@ class UserController extends AbstractController
      * @Route("/user", name="changePassword", methods={"PATCH"})
      */
     public function changePasssord(Request $request){
-        $cookie = $request->cookies->get("jwt");
         $password=json_decode($request->getContent(), true)["password"];
-        // Default error message
-        $error = "Unable to validate session.";
-        try
-        {
-            $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
-
-            $user=$this->getDoctrine()->getRepository(User::class)->find($decodedJwt->user_id);
-            $user->setPassword($this->passwordEncoder->encodePassword($user, $password));
-            $this->getDoctrine()->getManager()->flush();
-            return new JsonResponse($password, 200);
-        }
-        catch(ExpiredException $e)
-        {
-            $error = "Session has expired.";
-        }
-        catch(SignatureInvalidException $e)
-        {
-            // In this case, you may also want to send an email to yourself with the JWT
-            // If someone uses a JWT with an invalid signature, it could
-            // be a hacking attempt.
-            $error = "Attempting access invalid session.";
-        }
-        catch(Exception $e)
-        {
-            // Use the default error message
-        }
-        throw new CustomUserMessageAuthenticationException($error);
+        $user=$this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
+        $user->setPassword($this->passwordEncoder->encodePassword($user, $password));
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse($password, 200);
     }
 
     /**

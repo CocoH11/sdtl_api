@@ -73,7 +73,7 @@ class FileExtractData
                 $mileage=intval(substr($line[2], 100, 9));
                 $this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($errors, $numLine);
+                if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
@@ -136,7 +136,7 @@ class FileExtractData
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $newrefuel=$this->createRefuel($homeagency->getName(), $date, $buffer[1], $buffer[4], floatval($buffer[7]), product, intval($buffer[2]), $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($errors, $numLine);
+                if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
@@ -164,7 +164,7 @@ class FileExtractData
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $newrefuel=$this->createRefuel($buffer[9], $date, $buffer[12], $buffer[16], floatval($buffer[29]), $product,  $buffer[15], $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($errors, $numLine);
+                if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
