@@ -17,17 +17,30 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
+            pattern: ^/login
             anonymous: lazy
             provider: app_user_provider
             logout:
                 path: api_logout
+                invalidate_session: false
                 success_handler: App\Security\JwtLogoutHandler
             stateless: true
             guard:
                 authenticators:
                     - App\Security\LoginAuthenticator
+        api:
+            pattern: ^/api
+            guard:
+                authenticators:
+                    - App\Security\JWTRefreshAuthenticator
                     - App\Security\JWTAuthenticator
-                entry_point: App\Security\LoginAuthenticator
+                entry_point: App\Security\JWTRefreshAuthenticator
+            provider: app_user_provider
+            logout:
+                path: api_logout
+                success_handler: App\Security\JwtLogoutHandler
+            stateless: true
+            anonymous: lazy
 
 
             # activate different ways to authenticate

@@ -33,3 +33,4 @@ services:
     App\DataFixtures\DataFixture:
         arguments:
             $targetDirectory: '%files_directory%'
+    App\Security\JwtLogoutHandler:

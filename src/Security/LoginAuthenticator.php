@@ -3,6 +3,9 @@
 namespace App\Security;
 
 
+use App\Entity\RefreshToken;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Firebase\JWT\JWT;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,14 +20,16 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 {
     private $passwordEncoder;
     private $refreshStatus=false;
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    private $manager;
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager)
     {
         $this->passwordEncoder = $passwordEncoder;
-        var_dump("hellohellohello1");
+        $this->manager=$manager;
     }
 
     public function supports(Request $request)
     {
+        var_dump("loginauthenticator");
         return $request->get("_route") === "api_login" && $request->isMethod("POST");
     }
 
@@ -64,24 +69,30 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        $expireTimeAuthentication = time() +3600;
+        var_dump("loginauthenticationsuccess");
+        //Access token
+        $expireTimeAuthentication = time() +10;
         $tokenPayloadAuthentication = [
             'user_id' => $token->getUser()->getId(),
             'login'   => $token->getUser()->getUsername(),
             'exp'     => $expireTimeAuthentication
         ];
         $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, "string");
-
-        /*$expireTimeRefresh = time() + 3600;
+        //Create refresh token
+        $refreshTokenString=$this->RandomToken(32);
+        //Save the refresh token in the database
+        $user=$this->manager->getRepository(User::class)->find($token->getUser()->getId());
+        $user->setApiToken($refreshTokenString);
+        $this->manager->flush();
+        //Refresh token
+        $expireTimeRefresh = time() + 3600;
         $tokenPayLoadRefresh=[
-            'user_id'=>$token->getUser()->getId(),
-            'password'=>$token->getUser()->getUsername(),
+            'refresh_token'=>$refreshTokenString,
             'exp'=>$expireTimeRefresh
         ];
-        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");*/
-
-        setcookie("jwtAuthentication", $jwtAuthentication,null);
-        //setcookie("jwtRefresh", $jwtRefresh);
+        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");
+        setcookie("jwtAuthentication", $jwtAuthentication,$expireTimeAuthentication, "/", null, false, true);
+        setcookie("jwtRefresh", $jwtRefresh, $expireTimeRefresh, "/", null, false, true);
         return null;
     }
 
@@ -95,5 +106,10 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe()
     {
         // todo
+    }
+
+    private function RandomToken(int $length)
+    {
+        return bin2hex(random_bytes($length));
     }
 }

@@ -41,10 +41,15 @@ class User implements UserInterface
     private $homeagency;
 
     /**
-    * @ORM\Column(type="string", unique=true, nullable=true)
+    * @ORM\Column(type="string", unique=true, nullable=true, name="api_token")
     */
     private $apiToken;
 
+    /**
+     * @ORM\OneToOne(targetEntity=RefreshToken::class, mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name="refreshToken", nullable=true)
+     */
+    private $refreshToken;
 
     public function getId(): ?int
     {
@@ -136,6 +141,9 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @see UserInterface
+     */
     public function getApiToken(): ?string
     {
         return $this->apiToken;
@@ -144,6 +152,27 @@ class User implements UserInterface
     public function setApiToken(?string $apiToken): self
     {
         $this->apiToken = $apiToken;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRefreshToken(): ?RefreshToken
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(?RefreshToken $refreshToken): self
+    {
+        $this->refreshToken = $refreshToken;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newUser = null === $refreshToken ? null : $this;
+        if ($refreshToken->getUser() !== $newUser) {
+            $refreshToken->setUser($newUser);
+        }
 
         return $this;
     }

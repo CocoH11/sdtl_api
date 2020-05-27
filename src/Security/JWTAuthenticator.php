@@ -20,11 +20,10 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
     private $id=null;
     private $login=null;
     public function __construct(){
-        var_dump("hellohellohello2");
     }
     public function supports(Request $request)
     {
-        var_dump("helloworld");
+        var_dump("accessauthenticator");
         return $request->cookies->get("jwtAuthentication") ? true : false;
     }
 
@@ -36,7 +35,6 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         try
         {
             $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
-            var_dump($decodedJwt);
             $this->id=$decodedJwt->user_id;
             $this->login=$decodedJwt->login;
             return [
@@ -47,18 +45,13 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         catch(ExpiredException $e)
         {
             $error = "Session has expired.";
-            var_dump($error);
         }
         catch(SignatureInvalidException $e)
         {
-            // In this case, you may also want to send an email to yourself with the JWT
-            // If someone uses a JWT with an invalid signature, it could
-            // be a hacking attempt.
             $error = "Attempting access invalid session.";
         }
         catch(Exception $e)
         {
-            // Use the default error message
         }
         throw new CustomUserMessageAuthenticationException($error);
     }
