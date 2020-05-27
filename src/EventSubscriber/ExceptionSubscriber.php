@@ -15,7 +15,10 @@ class ExceptionSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
         $data = [
             'status' => $exception->getCode(),
-            'message' => $exception->getMessage()
+            'message' => $exception->getMessage(),
+            'file'=>$exception->getFile(),
+            'line'=>$exception->getLine(),
+            'trace'=>$exception->getTrace()
         ];
 
         $response = new JsonResponse($data);

@@ -31,25 +31,25 @@ class FileExtractData
 
     public function extractDataFromFile(File $file, System $system, Homeagency $homeagency)
     {
-        $refuelserrors=[];
+        $refuelserrors=array();
         switch ($system->getName()){
             case "as24":
-                $this->extractDataFromFileAS24($file, $system, $homeagency, $refuelserrors);
+                return $this->extractDataFromFileAS24($file, $system, $homeagency, $refuelserrors);
                 break;
             case "dkv":
-                $this->extractDataFromFileDKV($file, $system, $homeagency, $refuelserrors);
+                return$this->extractDataFromFileDKV($file, $system, $homeagency, $refuelserrors);
                 break;
             case "uta":
-                $this->extractDataFromFileUTA($file, $system, $homeagency, $refuelserrors);
+                return $this->extractDataFromFileUTA($file, $system, $homeagency, $refuelserrors);
                 break;
             case "ids":
-                $this->extractDataFromFileIDS($file, $system, $homeagency, $refuelserrors);
+                return $this->extractDataFromFileIDS($file, $system, $homeagency, $refuelserrors);
                 break;
             case "laffon":
-                $this->extractDataFromFileLAFFON($file, $system, $homeagency, $refuelserrors);
+                return $this->extractDataFromFileLAFFON($file, $system, $homeagency, $refuelserrors);
                 break;
             case "tokheim":
-                $this->extractDataFromFileTOKHEIM($file, $system, $homeagency, $refuelserrors);
+                return $this->extractDataFromFileTOKHEIM($file, $system, $homeagency, $refuelserrors);
                 break;
         }
         return $refuelserrors;
@@ -73,7 +73,7 @@ class FileExtractData
                 $mileage=intval(substr($line[2], 100, 9));
                 $this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($refuelserrors, $errors, $numLine);
+                if (count($errors)>0)$this->buildErrorsTab($errors, $numLine);
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
@@ -109,7 +109,7 @@ class FileExtractData
                 $stationlocation=$sheet->getCell("E".$i)->getValue();
                 $newrefuel=$this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($refuelserrors, $errors, $numLine);
+                if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
@@ -136,7 +136,7 @@ class FileExtractData
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $newrefuel=$this->createRefuel($homeagency->getName(), $date, $buffer[1], $buffer[4], floatval($buffer[7]), product, intval($buffer[2]), $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($refuelserrors, $errors, $numLine);
+                if (count($errors)>0)$this->buildErrorsTab($errors, $numLine);
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
@@ -164,7 +164,7 @@ class FileExtractData
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
                 $newrefuel=$this->createRefuel($buffer[9], $date, $buffer[12], $buffer[16], floatval($buffer[29]), $product,  $buffer[15], $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
-                if (count($errors)>0)$this->buildErrorsTab($refuelserrors, $errors, $numLine);
+                if (count($errors)>0)$this->buildErrorsTab($errors, $numLine);
                 else $this->manager->persist($newrefuel);
                 $numLine++;
             }
@@ -184,13 +184,13 @@ class FileExtractData
         $fileCsv->save("hello");
     }
 
-    public function buildErrorsTab(array $refuelserrors, ConstraintViolationListInterface $errors, int $numLine){
+    public function buildErrorsTab(ConstraintViolationListInterface $errors, int $numLine){
         $tab_errors=[];
         for ($i=0; $i<count($errors); $i++){
             array_push($tab_errors,$errors->get($i)->getMessage());
         }
-        array_push($refuelserrors, [$numLine, $tab_errors]);
-        return $tab_errors;
+
+        return [$numLine, $tab_errors];
     }
 
     public function createRefuel(String $stationlocation, DateTime $date, String $codecard, String $codedriver, Float $volume, Product $product, int $mileage, System $system, Homeagency $homeagency): Refuel{
