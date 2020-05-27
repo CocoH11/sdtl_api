@@ -13,6 +13,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SecurityController extends AbstractController
 {
+    private $secret;
+    public function __construct($secret)
+    {
+        $this->secret=$secret;
+    }
+
     /**
      * @Route("/login", name="api_login", methods={"POST"})
      */
@@ -28,7 +34,7 @@ class SecurityController extends AbstractController
      */
     public function logout(Request $resquest)
     {
-        $refreshTokenString=JWT::decode($resquest->cookies->get("jwtRefresh"), "string", ["HS256"])->refresh_token;
+        $refreshTokenString=JWT::decode($resquest->cookies->get("jwtRefresh"), $this->secret, ["HS256"])->refresh_token;
         $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(array('apiToken' => $refreshTokenString));
         $user->setApiToken(null);
         $this->getDoctrine()->getManager()->flush();

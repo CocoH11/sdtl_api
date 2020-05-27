@@ -20,9 +20,11 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 {
     private $manager;
-    public function __construct(EntityManagerInterface $manager)
+    private $secret;
+    public function __construct(EntityManagerInterface $manager, $secret)
     {
         $this->manager=$manager;
+        $this->secret=$secret;
     }
 
     public function start(Request $request, AuthenticationException $authException = null)
@@ -41,7 +43,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        $decodedJwt=JWT::decode($request->cookies->get("jwtRefresh"), "string", ["HS256"]);
+        $decodedJwt=JWT::decode($request->cookies->get("jwtRefresh"), $this->secret, ["HS256"]);
         return ['refreshToken' => $decodedJwt->refresh_token];
     }
 
@@ -65,7 +67,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
-        //$oldJwtAuthentication=JWT::decode($request->cookies->get("jwtAuthentication"),"string", ['HS256']);
+        //$oldJwtAuthentication=JWT::decode($request->cookies->get("jwtAuthentication"),$secret, ['HS256']);
         if (!$request->cookies->get("jwtAuthentication")){
             var_dump("refreshauthenticator accesstoken invalide");
             $request->cookies->remove("jwtRefresh");
@@ -75,7 +77,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
                 'login'   => $token->getUser()->getUsername(),
                 'exp'     => $expireTimeAuthentication
             ];
-            $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, "string");
+            $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, $this->secret);
             //Create refresh token
             $refreshTokenString=$this->RandomToken(32);
             //Save the refresh token in the database
@@ -88,7 +90,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
                 'refresh_token'=>$refreshTokenString,
                 'exp'=>$expireTimeRefresh
             ];
-            $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");
+            $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->secret);
             setcookie("jwtAuthentication", $jwtAuthentication,$expireTimeAuthentication, "/", null, false, true);
             setcookie("jwtRefresh", $jwtRefresh, $expireTimeRefresh, "/", null, false, true);
         }

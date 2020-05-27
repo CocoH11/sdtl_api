@@ -17,9 +17,9 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class JWTAuthenticator extends AbstractGuardAuthenticator
 {
-    private $id=null;
-    private $login=null;
-    public function __construct(){
+    private $secret;
+    public function __construct($secret){
+        $this->secret=$secret;
     }
     public function supports(Request $request)
     {
@@ -34,9 +34,7 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         $error = "Unable to validate session.";
         try
         {
-            $decodedJwt = JWT::decode($cookie, "string", ['HS256']);
-            $this->id=$decodedJwt->user_id;
-            $this->login=$decodedJwt->login;
+            $decodedJwt = JWT::decode($cookie, $this->secret, ['HS256']);
             return [
                 'user_id' => $decodedJwt->user_id,
                 'login' => $decodedJwt->login
@@ -70,8 +68,6 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
     {
         return new JsonResponse([
             'error' => $exception->getMessageKey(),
-            'id'=>$this->id,
-            'login'=>$this->login
         ], 400);
     }
 

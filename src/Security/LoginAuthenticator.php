@@ -21,15 +21,18 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     private $passwordEncoder;
     private $refreshStatus=false;
     private $manager;
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager)
+    private $secret;
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager, $secret)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->manager=$manager;
+        $this->secret=$secret;
     }
 
     public function supports(Request $request)
     {
         var_dump("loginauthenticator");
+        var_dump($this->secret);
         return $request->get("_route") === "api_login" && $request->isMethod("POST");
     }
 
@@ -38,12 +41,6 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
         $data=json_decode($request->getContent(), true);
         $login=$data["login"];
         $password=$data["password"];
-        if (!$login && !$password){
-            $cookie=$request->cookies->get("jwtRefresh");
-            $data=JWT::decode($cookie, "string");
-            $login=$data["login"];
-            $password=$data["password"];
-        }
         return [
             'login' => $login,
             'password' => $password,
@@ -77,7 +74,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
             'login'   => $token->getUser()->getUsername(),
             'exp'     => $expireTimeAuthentication
         ];
-        $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, "string");
+        $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, $this->secret);
         //Create refresh token
         $refreshTokenString=$this->RandomToken(32);
         //Save the refresh token in the database
@@ -90,7 +87,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
             'refresh_token'=>$refreshTokenString,
             'exp'=>$expireTimeRefresh
         ];
-        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, "string");
+        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->secret);
         setcookie("jwtAuthentication", $jwtAuthentication,$expireTimeAuthentication, "/", null, false, true);
         setcookie("jwtRefresh", $jwtRefresh, $expireTimeRefresh, "/", null, false, true);
         return null;

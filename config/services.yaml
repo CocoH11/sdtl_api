@@ -4,7 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    #path to the directory where the elements uploaded are stored
     files_directory: '%kernel.project_dir%/public/uploads/'
+    #secret string used as a key to encrypt the cookie before give them to the browser
+    secret: '%env(JWT_SECRET)%'
 
 services:
     # default configuration for services in *this* file
@@ -30,7 +33,24 @@ services:
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%files_directory%'
+
     App\DataFixtures\DataFixture:
         arguments:
             $targetDirectory: '%files_directory%'
-    App\Security\JwtLogoutHandler:
+
+    #Service for the security of the app
+    App\Security\JWTAuthenticator:
+        arguments:
+            $secret: '%secret%'
+
+    App\Security\JWTRefreshAuthenticator:
+        arguments:
+            $secret: '%secret%'
+
+    App\Security\LoginAuthenticator:
+        arguments:
+            $secret: '%secret%'
+
+    App\Controller\SecurityController:
+        arguments:
+            $secret: '%secret%'

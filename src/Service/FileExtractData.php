@@ -134,7 +134,7 @@ class FileExtractData
                 $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[5].$buffer[6]);
                 if ($buffer[0]==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
-                $newrefuel=$this->createRefuel($homeagency->getName(), $date, $buffer[1], $buffer[4], floatval($buffer[7]), product, intval($buffer[2]), $system, $homeagency);
+                $newrefuel=$this->createRefuel($homeagency->getName(), $date, $buffer[1], $buffer[4], floatval($buffer[7]), $product, intval($buffer[2]), $system, $homeagency);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
