@@ -25,8 +25,8 @@ class FileExtractData
 
     public function __construct(EntityManagerInterface $manager, ValidatorInterface $validator)
     {
-     $this->manager=$manager;
-     $this->validator=$validator;
+        $this->manager=$manager;
+        $this->validator=$validator;
     }
 
     public function extractDataFromFile(File $file, System $system, Homeagency $homeagency)
