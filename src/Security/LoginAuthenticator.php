@@ -21,18 +21,26 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     private $passwordEncoder;
     private $refreshStatus=false;
     private $manager;
-    private $secret;
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager, $secret)
+    private $jwt_secret;
+    private $jwt_domain;
+    private $jwt_path;
+    private $jwt_access_name;
+    private $jwt_refresh_name;
+
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager, $jwt_secret, $jwt_domain, $jwt_path, $jwt_access_name, $jwt_refresh_name)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->manager=$manager;
-        $this->secret=$secret;
+        $this->jwt_secret=$jwt_secret;
+        $this->jwt_domain=$jwt_domain;
+        $this->jwt_path=$jwt_path;
+        $this->jwt_access_name=$jwt_access_name;
+        $this->jwt_refresh_name=$jwt_refresh_name;
     }
 
     public function supports(Request $request)
     {
         var_dump("loginauthenticator");
-        var_dump($this->secret);
         return $request->get("_route") === "api_login" && $request->isMethod("POST");
     }
 
@@ -74,7 +82,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
             'login'   => $token->getUser()->getUsername(),
             'exp'     => $expireTimeAuthentication
         ];
-        $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, $this->secret);
+        $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, $this->jwt_secret);
         //Create refresh token
         $refreshTokenString=$this->RandomToken(32);
         //Save the refresh token in the database
@@ -87,9 +95,9 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
             'refresh_token'=>$refreshTokenString,
             'exp'=>$expireTimeRefresh
         ];
-        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->secret);
-        setcookie("jwtAuthentication", $jwtAuthentication,$expireTimeAuthentication, "/", null, false, true);
-        setcookie("jwtRefresh", $jwtRefresh, $expireTimeRefresh, "/", null, false, true);
+        $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->jwt_secret);
+        setcookie($this->jwt_access_name, $jwtAuthentication,$expireTimeAuthentication, $this->jwt_path, $this->jwt_domain, false, true);
+        setcookie($this->jwt_refresh_name, $jwtRefresh, $expireTimeRefresh, $this->jwt_path, $this->jwt_domain, false, true);
         return null;
     }
 

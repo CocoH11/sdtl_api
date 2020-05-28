@@ -17,24 +17,33 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class JWTAuthenticator extends AbstractGuardAuthenticator
 {
-    private $secret;
-    public function __construct($secret){
-        $this->secret=$secret;
+    private $jwt_secret;
+    private $jwt_path;
+    private $jwt_domain;
+    private $jwt_access_name;
+    private $jwt_refresh_name;
+
+    public function __construct($jwt_secret, $jwt_path, $jwt_domain, $jwt_access_name, $jwt_refresh_name){
+        $this->jwt_secret=$jwt_secret;
+        $this->jwt_path=$jwt_path;
+        $this->jwt_domain=$jwt_domain;
+        $this->jwt_access_name=$jwt_access_name;
+        $this->jwt_refresh_name=$jwt_refresh_name;
     }
     public function supports(Request $request)
     {
         var_dump("accessauthenticator");
-        return $request->cookies->get("jwtAuthentication") ? true : false;
+        return $request->cookies->get($this->jwt_access_name) ? true : false;
     }
 
     public function getCredentials(Request $request)
     {
-        $cookie = $request->cookies->get("jwtAuthentication");
+        $cookie = $request->cookies->get($this->jwt_access_name);
         // Default error message
         $error = "Unable to validate session.";
         try
         {
-            $decodedJwt = JWT::decode($cookie, $this->secret, ['HS256']);
+            $decodedJwt = JWT::decode($cookie, $this->jwt_secret, ['HS256']);
             return [
                 'user_id' => $decodedJwt->user_id,
                 'login' => $decodedJwt->login

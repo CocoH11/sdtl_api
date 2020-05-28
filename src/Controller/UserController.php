@@ -7,6 +7,7 @@ use App\Entity\User;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,6 +32,8 @@ class UserController extends AbstractController
 
     /**
      * @Route("/user", name="changePassword", methods={"PATCH"})
+     * @param Request $request
+     * @return JsonResponse
      */
     public function changePasssord(Request $request){
         $password=json_decode($request->getContent(), true)["password"];
@@ -42,6 +45,9 @@ class UserController extends AbstractController
 
     /**
      * @Route("/admin/user", name="addUser", methods={"PUT"})
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @return JsonResponse
      */
     public function addUser(Request $request, ValidatorInterface $validator){
         $user=json_decode($request->getContent(), true)["user"];
@@ -71,10 +77,13 @@ class UserController extends AbstractController
 
     /**
      * @Route("/admin/user/{id}", name="deleteUser", methods={"DELETE"})
+     * @ParamConverter(name="user", class="App:User")
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
      */
-    public function deleteUser(Request $request, int $id){
+    public function deleteUser(Request $request, User $user){
         $error=null;
-        $user=$this->getDoctrine()->getRepository(User::class)->find($id);
         if ($user) {
             $this->getDoctrine()->getManager()->remove($user);
             $this->getDoctrine()->getManager()->flush();
@@ -85,6 +94,9 @@ class UserController extends AbstractController
 
     /**
      * @Route("/admin/users", name="addUsers", methods={"PUT"})
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @return JsonResponse
      */
     public function addUsers(Request $request, ValidatorInterface $validator){
         $users=json_decode($request->getContent(), true)["users"];

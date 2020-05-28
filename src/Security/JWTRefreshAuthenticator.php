@@ -20,11 +20,20 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 {
     private $manager;
-    private $secret;
-    public function __construct(EntityManagerInterface $manager, $secret)
+    private $jwt_secret;
+    private $jwt_path;
+    private $jwt_domain;
+    private $jwt_access_name;
+    private $jwt_refresh_name;
+
+    public function __construct(EntityManagerInterface $manager, $jwt_secret, $jwt_path, $jwt_domain, $jwt_access_name, $jwt_refresh_name)
     {
         $this->manager=$manager;
-        $this->secret=$secret;
+        $this->jwt_secret=$jwt_secret;
+        $this->jwt_path=$jwt_path;
+        $this->jwt_domain=$jwt_domain;
+        $this->jwt_access_name=$jwt_refresh_name;
+        $this->jwt_refresh_name=$jwt_refresh_name;
     }
 
     public function start(Request $request, AuthenticationException $authException = null)
@@ -43,7 +52,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        $decodedJwt=JWT::decode($request->cookies->get("jwtRefresh"), $this->secret, ["HS256"]);
+        $decodedJwt=JWT::decode($request->cookies->get($this->jwt_refresh_name), $this->jwt_secret, ["HS256"]);
         return ['refreshToken' => $decodedJwt->refresh_token];
     }
 
@@ -68,16 +77,15 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
         //$oldJwtAuthentication=JWT::decode($request->cookies->get("jwtAuthentication"),$secret, ['HS256']);
-        if (!$request->cookies->get("jwtAuthentication")){
+        if (!$request->cookies->get($this->jwt_access_name)){
             var_dump("refreshauthenticator accesstoken invalide");
-            $request->cookies->remove("jwtRefresh");
             $expireTimeAuthentication = time() +10;
             $tokenPayloadAuthentication = [
                 'user_id' => $token->getUser()->getId(),
                 'login'   => $token->getUser()->getUsername(),
                 'exp'     => $expireTimeAuthentication
             ];
-            $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, $this->secret);
+            $jwtAuthentication = JWT::encode($tokenPayloadAuthentication, $this->jwt_secret);
             //Create refresh token
             $refreshTokenString=$this->RandomToken(32);
             //Save the refresh token in the database
@@ -90,9 +98,9 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
                 'refresh_token'=>$refreshTokenString,
                 'exp'=>$expireTimeRefresh
             ];
-            $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->secret);
-            setcookie("jwtAuthentication", $jwtAuthentication,$expireTimeAuthentication, "/", null, false, true);
-            setcookie("jwtRefresh", $jwtRefresh, $expireTimeRefresh, "/", null, false, true);
+            $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->jwt_secret);
+            setcookie($this->jwt_access_name, $jwtAuthentication,$expireTimeAuthentication, $this->jwt_path, $this->jwt_domain, false, true);
+            setcookie($this->jwt_refresh_name, $jwtRefresh, $expireTimeRefresh, $this->jwt_path, $this->jwt_domain, false, true);
         }
         return null;
     }

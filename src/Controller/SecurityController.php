@@ -13,10 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SecurityController extends AbstractController
 {
-    private $secret;
-    public function __construct($secret)
+    private $jwt_secret;
+    private $jwt_path;
+    private $jwt_domain;
+    public function __construct($jwt_secret, $jwt_path, $jwt_domain)
     {
-        $this->secret=$secret;
+        $this->jwt_secret=$jwt_secret;
+        $this->jwt_path=$jwt_path;
+        $this->jwt_domain=$jwt_domain;
     }
 
     /**
@@ -34,12 +38,12 @@ class SecurityController extends AbstractController
      */
     public function logout(Request $resquest)
     {
-        $refreshTokenString=JWT::decode($resquest->cookies->get("jwtRefresh"), $this->secret, ["HS256"])->refresh_token;
+        $refreshTokenString=JWT::decode($resquest->cookies->get("jwtRefresh"), $this->jwt_secret, ["HS256"])->refresh_token;
         $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(array('apiToken' => $refreshTokenString));
         $user->setApiToken(null);
         $this->getDoctrine()->getManager()->flush();
-        setcookie("jwtRefresh", null, time(), "/", null, false, true);
-        setcookie("jwtAuthentication", null, time(), "/", null, false, true);
+        setcookie("jwtRefresh", null, time(), $this->jwt_path, $this->jwt_domain, false, true);
+        setcookie("jwtAuthentication", null, time(), $this->jwt_path, $this->jwt_domain, false, true);
         return new JsonResponse([]);
     }
 }

@@ -7,7 +7,11 @@ parameters:
     #path to the directory where the elements uploaded are stored
     files_directory: '%kernel.project_dir%/public/uploads/'
     #secret string used as a key to encrypt the cookie before give them to the browser
-    secret: '%env(JWT_SECRET)%'
+    jwt_secret: '%env(JWT_SECRET)%'
+    jwt_domain: '%env(JWT_DOMAIN)%'
+    jwt_path: '%env(JWT_PATH)%'
+    jwt_access_name: '%env(JWT_ACCESS_NAME)%'
+    jwt_refresh_name: '%env(JWT_REFRESH_NAME)%'
 
 services:
     # default configuration for services in *this* file
@@ -41,16 +45,32 @@ services:
     #Service for the security of the app
     App\Security\JWTAuthenticator:
         arguments:
-            $secret: '%secret%'
+            $jwt_secret: '%jwt_secret%'
+            $jwt_domain: '%jwt_domain%'
+            $jwt_path: '%jwt_path%'
+            $jwt_access_name: '%jwt_access_name%'
+            $jwt_refresh_nama: '%jwt_refresh_name%'
 
     App\Security\JWTRefreshAuthenticator:
         arguments:
-            $secret: '%secret%'
+            $jwt_secret: '%jwt_secret%'
+            $jwt_domain: '%jwt_domain%'
+            $jwt_path: '%jwt_path%'
+            $jwt_access_name: '%jwt_access_name%'
+            $jwt_refresh_nama: '%jwt_refresh_name%'
 
     App\Security\LoginAuthenticator:
         arguments:
-            $secret: '%secret%'
+            $jwt_secret: '%jwt_secret%'
+            $jwt_domain: '%jwt_domain%'
+            $jwt_path: '%jwt_path%'
+            $jwt_access_name: '%jwt_access_name%'
+            $jwt_refresh_nama: '%jwt_refresh_name%'
 
     App\Controller\SecurityController:
         arguments:
-            $secret: '%secret%'
+            $jwt_secret: '%jwt_secret%'
+            $jwt_domain: '%jwt_domain%'
+            $jwt_path: '%jwt_path%'
+            $jwt_access_name: '%jwt_access_name%'
+            $jwt_refresh_nama: '%jwt_refresh_name%'

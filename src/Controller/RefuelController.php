@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Homeagency;
 use App\Entity\Product;
 use App\Entity\Refuel;
 use App\Entity\User;
@@ -10,18 +9,13 @@ use App\Entity\System;
 use App\Service\FileExtractData;
 use App\Service\FileUploader;
 use Doctrine\Persistence\ManagerRegistry;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Validator\ValidatorBuilder;
 
 /**
  * Class RefuelController
