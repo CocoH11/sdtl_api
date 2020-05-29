@@ -6,12 +6,24 @@
 parameters:
     #path to the directory where the elements uploaded are stored
     files_directory: '%kernel.project_dir%/public/uploads/'
+    ##parameters for the cookies and the token used to authenticate a user
     #secret string used as a key to encrypt the cookie before give them to the browser
     jwt_secret: '%env(JWT_SECRET)%'
     jwt_domain: '%env(JWT_DOMAIN)%'
     jwt_path: '%env(JWT_PATH)%'
     jwt_access_name: '%env(JWT_ACCESS_NAME)%'
     jwt_refresh_name: '%env(JWT_REFRESH_NAME)%'
+
+    ##parameters for the recording of entity object
+    refuel_refuels_name: '%env(REFUEL_REFUElS_NAME)%'
+    refuel_volume_name: '%env(REFUEL_VOLUME_NAME)%'
+    refuel_codecard_name: '%env(REFUEL_CODECARD_NAME)%'
+    refuel_codedriver_name: '%env(REFUEL_CODEDRIVER_NAME)%'
+    refuel_system_name: '%env(REFUEL_SYSTEM_NAME)%'
+    refuel_date_name: '%env(REFUEL_DATE_NAME)%'
+    refuel_stationlocation_name: '%env(REFUEL_STATIONLOCATION_NAME)%'
+    refuel_mileage_name: '%env(REFUEL_MILEAGE_NAME)%'
+    refuel_product_name: '%env(REFUEL_PRODUCT_NAME)%'
 
 services:
     # default configuration for services in *this* file
@@ -74,3 +86,17 @@ services:
             $jwt_path: '%jwt_path%'
             $jwt_access_name: '%jwt_access_name%'
             $jwt_refresh_name: '%jwt_refresh_name%'
+
+    ##Service for the refuel management
+    App\Controller\RefuelController:
+        arguments:
+            $refuel_volume_name: '%refuel_volume_name%'
+            $refuel_codecard_name: '%refuel_codecard_name%'
+            $refuel_codedriver_name: '%refuel_codedriver_name%'
+            $refuel_system_name: '%refuel_system_name%'
+            $refuel_date_name: '%refuel_date_name%'
+            $refuel_stationlocation_name: '%refuel_stationlocation_name%'
+            $refuel_mileage_name: '%refuel_mileage_name%'
+            $refuel_product_name: '%refuel_product_name%'
+            $refuel_refuels_name: '%refuel_refuels_name%'
+            $refuel_refuel_name: '%refuel_refuel_name%'

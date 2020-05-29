@@ -25,6 +25,31 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class RefuelController extends AbstractController
 {
+    private $refuel_refuel_name;
+    private $refuel_refuels_name;
+    private $refuel_volume_name;
+    private $refuel_codecard_name;
+    private $refuel_codedriver_name;
+    private $refuel_system_name;
+    private $refuel_date_name;
+    private $refuel_stationlocation_name;
+    private $refuel_mileage_name;
+    private $refuel_product_name;
+
+    public function __construct(string $refuel_refuel_name, string $refuel_refuels_name, string $refuel_volume_name, string $refuel_codecard_name, string $refuel_codedriver_name, string $refuel_system_name, string $refuel_date_name, string $refuel_stationlocation_name, string $refuel_mileage_name, string $refuel_product_name)
+    {
+        $this->refuel_codecard_name=$refuel_codecard_name;
+        $this->refuel_codedriver_name=$refuel_codedriver_name;
+        $this->refuel_date_name=$refuel_date_name;
+        $this->refuel_mileage_name=$refuel_mileage_name;
+        $this->refuel_product_name=$refuel_product_name;
+        $this->refuel_stationlocation_name=$refuel_stationlocation_name;
+        $this->refuel_volume_name=$refuel_volume_name;
+        $this->refuel_system_name=$refuel_system_name;
+        $this->refuel_refuels_name=$refuel_refuels_name;
+        $this->refuel_refuel_name=$refuel_refuel_name;
+    }
+
     /**
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
      * @param Request $request
@@ -38,18 +63,18 @@ class RefuelController extends AbstractController
         $user= $this->getDoctrine()->getRepository(User::class)->find($this->getUser());
         $refuelserrors=[];
         $numLine=0;
-        foreach ($data["refuels"] as $refuel){
-            $system=$this->getDoctrine()->getRepository(System::class)->find($refuel["system"]);
-            $product=$this->getDoctrine()->getRepository(Product::class)->find($refuel["product"]);
-            $date=\DateTime::createFromFormat("m-d-Y", $refuel["date"]);
+        foreach ($data[$this->refuel_refuels_name] as $refuel){
+            $system=$this->getDoctrine()->getRepository(System::class)->find($refuel[$this->refuel_system_name]);
+            $product=$this->getDoctrine()->getRepository(Product::class)->find($refuel[$this->refuel_product_name]);
+            $date=\DateTime::createFromFormat("m-d-Y", $refuel[$this->refuel_date_name]);
             $creationDate=new \DateTime();
             if (!$date)$date=null;
             $newrefuel=new Refuel();
-            $newrefuel->setCodeCard($refuel["codecard"]);
-            $newrefuel->setCodeDriver($refuel["codedriver"]);
-            $newrefuel->setVolume($refuel["volume"]);
-            $newrefuel->setMileage($refuel["mileage"]);
-            $newrefuel->setStationLocation($refuel["stationlocation"]);
+            $newrefuel->setCodeCard($refuel[$this->refuel_codecard_name]);
+            $newrefuel->setCodeDriver($refuel[$this->refuel_codedriver_name]);
+            $newrefuel->setVolume($refuel[$this->refuel_volume_name]);
+            $newrefuel->setMileage($refuel[$this->refuel_mileage_name]);
+            $newrefuel->setStationLocation($refuel[$this->refuel_stationlocation_name]);
             $newrefuel->setDate($date);
             $newrefuel->setProduct($product);
             $newrefuel->setSystem($system);
@@ -93,22 +118,22 @@ class RefuelController extends AbstractController
      * @return JsonResponse
      */
     public function updateRefuel(Request $request,Refuel $refuel, ValidatorInterface $validator){
-        $refueldata=json_decode($request->getContent(), true)["refuel"];
-        if (isset($refueldata["volume"]))$refuel->setVolume($refueldata["volume"]);
-        if (isset($refueldata["codecard"]))$refuel->setCodeCard($refueldata["codecard"]);
-        if (isset($refueldata["codedriver"]))$refuel->setCodeDriver($refueldata["codedriver"]);
-        if (isset($refueldata["stationlocation"]))$refuel->setStationLocation($refueldata["stationlocation"]);
-        if (isset($refueldata["mileage"]))$refuel->setMileage($refueldata["mileage"]);
-        if (isset($refueldata["product"])){
-            $product=$this->getDoctrine()->getRepository(Product::class)->find($refueldata["product"]);
+        $refueldata=json_decode($request->getContent(), true)[$this->refuel_refuel_name];
+        if (isset($refueldata[$this->refuel_volume_name]))$refuel->setVolume($refueldata[$this->refuel_volume_name]);
+        if (isset($refueldata[$this->refuel_codecard_name]))$refuel->setCodeCard($refueldata[$this->refuel_codecard_name]);
+        if (isset($refueldata[$this->refuel_codedriver_name]))$refuel->setCodeDriver($refueldata[$this->refuel_codedriver_name]);
+        if (isset($refueldata[$this->refuel_stationlocation_name]))$refuel->setStationLocation($refueldata[$this->refuel_stationlocation_name]);
+        if (isset($refueldata[$this->refuel_mileage_name]))$refuel->setMileage($refueldata[$this->refuel_mileage_name]);
+        if (isset($refueldata[$this->refuel_product_name])){
+            $product=$this->getDoctrine()->getRepository(Product::class)->find($refueldata[$this->refuel_product_name]);
             $refuel->setProduct($product);
         }
-        if (isset($refueldata["system"])){
-            $system=$this->getDoctrine()->getRepository(System::class)->find($refueldata["system"]);
+        if (isset($refueldata[$this->refuel_system_name])){
+            $system=$this->getDoctrine()->getRepository(System::class)->find($refueldata[$this->refuel_system_name]);
             $refuel->setSystem($system);
         }
-        if (isset($refueldata["date"])){
-            $date=\DateTime::createFromFormat("m-d-Y", $refueldata["date"]);
+        if (isset($refueldata[$this->refuel_date_name])){
+            $date=\DateTime::createFromFormat("m-d-Y", $refueldata[$this->refuel_date_name]);
             $refuel->setDate($date);
         }
         $modificationdate=new \DateTime("now");
@@ -138,7 +163,7 @@ class RefuelController extends AbstractController
         $user=$this->getDoctrine->getRepository(User::class)->find($this->getUser());
         $creationdate=new \DateTime("now");
         $data= json_decode($request->getContent(), true);
-        $numSystem=$data["system"];
+        $numSystem=$data[$this->refuel_system_name];
         $filedata=base64_decode($data["data"]);
         $fileExtension=$data["fileExtension"];
         /*Check the System and the HomeAgency*/
