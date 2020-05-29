@@ -37,17 +37,26 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/logout", name="api_logout", methods={"GET"})
-     * @param Request $resquest
+     * @param Request $request
      * @return JsonResponse
      */
-    public function logout(Request $resquest)
+    public function logout(Request $request)
     {
-        $refreshTokenString=JWT::decode($resquest->cookies->get($this->jwt_refresh_name), $this->jwt_secret, ["HS256"])->refresh_token;
+        $refreshTokenString=JWT::decode($request->cookies->get($this->jwt_refresh_name), $this->jwt_secret, ["HS256"])->refresh_token;
         $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(array('apiToken' => $refreshTokenString));
         $user->setApiToken(null);
         $this->getDoctrine()->getManager()->flush();
         setcookie($this->jwt_refresh_name, null, time(), $this->jwt_path, $this->jwt_domain, false, true);
         setcookie($this->jwt_access_name, null, time(), $this->jwt_path, $this->jwt_domain, false, true);
         return new JsonResponse([]);
+    }
+
+    /**
+     * @Route("/isAuthenticated", name="isAuthenticated", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function isAuthenticated(Request $request){
+        return new JsonResponse(["authentication"=>$request->cookies->get($this->jwt_refresh_name)? true : false]);
     }
 }

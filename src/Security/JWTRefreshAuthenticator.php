@@ -8,6 +8,7 @@ use App\Entity\RefreshToken;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Firebase\JWT\JWT;
+use http\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,8 +47,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 
     public function supports(Request $request)
     {
-        var_dump("refreshauthenticator");
-        return true;
+        return $request->cookies->get($this->jwt_refresh_name)? true : false;
     }
 
     public function getCredentials(Request $request)

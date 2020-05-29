@@ -57,7 +57,7 @@ class RefuelController extends AbstractController
             $newrefuel->setCreationDate($date);
             $newrefuel->setHomeagency($homeagency);
             $errors=$validator->validate($newrefuel);
-            if (count($errors)==0) {
+            if (count($errors)>0) {
                 $tab_errors = [];
                 for ($i = 0; $i < count($errors); $i++) {
                     array_push($tab_errors, $errors->get($i)->getMessage());
@@ -89,12 +89,45 @@ class RefuelController extends AbstractController
      * @ParamConverter(name="refuel", class="App:Refuel")
      * @param Request $request
      * @param Refuel $refuel
+     * @param ValidatorInterface $validator
      * @return JsonResponse
      */
-    public function updateRefuel(Request $request,Refuel $refuel){
-        $data=json_decode($request->getContent(), true);
-        $keys=array_keys($data["refuel"]);
-        return new JsonResponse($refuel);
+    public function updateRefuel(Request $request,Refuel $refuel, ValidatorInterface $validator){
+        $refueldata=json_decode($request->getContent(), true)["refuel"];
+        if (isset($refueldata["volume"]))$refuel->setVolume($refueldata["volume"]);
+        if (isset($refueldata["codecard"]))$refuel->setCodeCard($refueldata["codecard"]);
+        if (isset($refueldata["codedriver"]))$refuel->setCodeDriver($refueldata["codedriver"]);
+        if (isset($refueldata["stationlocation"]))$refuel->setStationLocation($refueldata["stationlocation"]);
+        if (isset($refueldata["mileage"]))$refuel->setMileage($refueldata["mileage"]);
+        if (isset($refueldata["product"])){
+            $product=$this->getDoctrine()->getRepository(Product::class)->find($refueldata["product"]);
+            $refuel->setProduct($product);
+        }
+        if (isset($refueldata["system"])){
+            $system=$this->getDoctrine()->getRepository(System::class)->find($refueldata["system"]);
+            $refuel->setSystem($system);
+        }
+        if (isset($refueldata["date"])){
+            $date=\DateTime::createFromFormat("m-d-Y", $refueldata["date"]);
+            $refuel->setDate($date);
+        }
+        $modificationdate=new \DateTime("now");
+        $modifieruser=$this->getDoctrine()->getRepository(User::class)->find($this->getUser());
+        $refuel->setModifierUser($modifieruser);
+        $refuel->setModificationDate($modificationdate);
+
+        $errors=$validator->validate($refuel);
+        if (count($errors)>0) {
+            $tab_errors = [];
+            for ($i = 0; $i < count($errors); $i++) {
+                array_push($tab_errors, $errors->get($i)->getMessage());
+            }
+            array_push($refuelserrors, [$tab_errors]);
+        }else {
+            $this->getDoctrine()->getManager()->persist($refuel);
+            $this->getDoctrine()->getManager()->flush();
+        }
+        return new JsonResponse($errors);
     }
 
     /**
