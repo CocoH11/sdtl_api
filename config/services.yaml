@@ -49,7 +49,7 @@ services:
             $jwt_domain: '%jwt_domain%'
             $jwt_path: '%jwt_path%'
             $jwt_access_name: '%jwt_access_name%'
-            $jwt_refresh_nama: '%jwt_refresh_name%'
+            $jwt_refresh_name: '%jwt_refresh_name%'
 
     App\Security\JWTRefreshAuthenticator:
         arguments:
@@ -57,7 +57,7 @@ services:
             $jwt_domain: '%jwt_domain%'
             $jwt_path: '%jwt_path%'
             $jwt_access_name: '%jwt_access_name%'
-            $jwt_refresh_nama: '%jwt_refresh_name%'
+            $jwt_refresh_name: '%jwt_refresh_name%'
 
     App\Security\LoginAuthenticator:
         arguments:
@@ -65,7 +65,7 @@ services:
             $jwt_domain: '%jwt_domain%'
             $jwt_path: '%jwt_path%'
             $jwt_access_name: '%jwt_access_name%'
-            $jwt_refresh_nama: '%jwt_refresh_name%'
+            $jwt_refresh_name: '%jwt_refresh_name%'
 
     App\Controller\SecurityController:
         arguments:
@@ -73,4 +73,4 @@ services:
             $jwt_domain: '%jwt_domain%'
             $jwt_path: '%jwt_path%'
             $jwt_access_name: '%jwt_access_name%'
-            $jwt_refresh_nama: '%jwt_refresh_name%'
+            $jwt_refresh_name: '%jwt_refresh_name%'

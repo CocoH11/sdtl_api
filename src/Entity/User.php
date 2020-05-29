@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -46,10 +48,20 @@ class User implements UserInterface
     private $apiToken;
 
     /**
-     * @ORM\OneToOne(targetEntity=RefreshToken::class, mappedBy="user", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="refreshToken", nullable=true)
+     * @ORM\OneToMany(targetEntity=Refuel::class, mappedBy="creatorUser")
      */
-    private $refreshToken;
+    private $createdRefuels;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Refuel::class, mappedBy="modifierUser")
+     */
+    private $modifiedRefuels;
+
+    public function __construct()
+    {
+        $this->createdRefuels = new ArrayCollection();
+        $this->modifiedRefuels = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -157,21 +169,62 @@ class User implements UserInterface
     }
 
     /**
-     * @see UserInterface
+     * @return Collection|Refuel[]
      */
-    public function getRefreshToken(): ?RefreshToken
+    public function getCreatedRefuels(): Collection
     {
-        return $this->refreshToken;
+        return $this->createdRefuels;
     }
 
-    public function setRefreshToken(?RefreshToken $refreshToken): self
+    public function addRefuel(Refuel $refuel): self
     {
-        $this->refreshToken = $refreshToken;
+        if (!$this->createdRefuels->contains($refuel)) {
+            $this->createdRefuels[] = $refuel;
+            $refuel->setCreatorUser($this);
+        }
 
-        // set (or unset) the owning side of the relation if necessary
-        $newUser = null === $refreshToken ? null : $this;
-        if ($refreshToken->getUser() !== $newUser) {
-            $refreshToken->setUser($newUser);
+        return $this;
+    }
+
+    public function removeRefuel(Refuel $refuel): self
+    {
+        if ($this->createdRefuels->contains($refuel)) {
+            $this->createdRefuels->removeElement($refuel);
+            // set the owning side to null (unless already changed)
+            if ($refuel->getCreatorUser() === $this) {
+                $refuel->setCreatorUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Refuel[]
+     */
+    public function getModifiedRefuels(): Collection
+    {
+        return $this->modifiedRefuels;
+    }
+
+    public function addModifiedRefuel(Refuel $modifiedRefuel): self
+    {
+        if (!$this->modifiedRefuels->contains($modifiedRefuel)) {
+            $this->modifiedRefuels[] = $modifiedRefuel;
+            $modifiedRefuel->setModifierUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeModifiedRefuel(Refuel $modifiedRefuel): self
+    {
+        if ($this->modifiedRefuels->contains($modifiedRefuel)) {
+            $this->modifiedRefuels->removeElement($modifiedRefuel);
+            // set the owning side to null (unless already changed)
+            if ($modifiedRefuel->getModifierUser() === $this) {
+                $modifiedRefuel->setModifierUser(null);
+            }
         }
 
         return $this;

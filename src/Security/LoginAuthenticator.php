@@ -40,7 +40,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function supports(Request $request)
     {
-        var_dump("loginauthenticator");
+        //var_dump("loginauthenticator");
         return $request->get("_route") === "api_login" && $request->isMethod("POST");
     }
 
@@ -68,13 +68,14 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         return new JsonResponse([
+            'authentication'=>false,
             'error' => $exception->getMessageKey()
         ], 400);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        var_dump("loginauthenticationsuccess");
+        //var_dump("loginauthenticationsuccess");
         //Access token
         $expireTimeAuthentication = time() +10;
         $tokenPayloadAuthentication = [
@@ -98,8 +99,8 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
         $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->jwt_secret);
         setcookie($this->jwt_access_name, $jwtAuthentication,$expireTimeAuthentication, $this->jwt_path, $this->jwt_domain, false, true);
         setcookie($this->jwt_refresh_name, $jwtRefresh, $expireTimeRefresh, $this->jwt_path, $this->jwt_domain, false, true);
-        return null;
-    }
+        return new JsonResponse(["authentication"=>true]);
+        }
 
     public function start(Request $request, AuthenticationException $authException = null)
     {
@@ -110,7 +111,6 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function supportsRememberMe()
     {
-        // todo
     }
 
     private function RandomToken(int $length)

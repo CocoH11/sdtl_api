@@ -84,6 +84,26 @@ class Refuel
      */
     private $product;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $creationDate;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="refuels")
+     */
+    private $creatorUser;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $modificationDate;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="modifiedRefuels")
+     */
+    private $modifierUser;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -193,6 +213,54 @@ class Refuel
     public function setProduct(?Product $product): self
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    public function getCreationDate(): ?\DateTimeInterface
+    {
+        return $this->creationDate;
+    }
+
+    public function setCreationDate(\DateTimeInterface $creationDate): self
+    {
+        $this->creationDate = $creationDate;
+
+        return $this;
+    }
+
+    public function getCreatorUser(): ?User
+    {
+        return $this->creatorUser;
+    }
+
+    public function setCreatorUser(?User $creatorUser): self
+    {
+        $this->creatorUser = $creatorUser;
+
+        return $this;
+    }
+
+    public function getModificationDate(): ?\DateTimeInterface
+    {
+        return $this->modificationDate;
+    }
+
+    public function setModificationDate(\DateTimeInterface $modificationDate): self
+    {
+        $this->modificationDate = $modificationDate;
+
+        return $this;
+    }
+
+    public function getModifierUser(): ?User
+    {
+        return $this->modifierUser;
+    }
+
+    public function setModifierUser(?User $modifierUser): self
+    {
+        $this->modifierUser = $modifierUser;
 
         return $this;
     }
