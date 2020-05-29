@@ -85,21 +85,23 @@ class Refuel
     private $product;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
+     * @ORM\Column(nullable=false)
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="refuels")
      */
     private $creatorUser;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $modificationDate;
 
     /**
+     * @ORM\Column(nullable=true)
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="modifiedRefuels")
      */
     private $modifierUser;

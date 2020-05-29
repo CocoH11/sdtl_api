@@ -35,13 +35,14 @@ class RefuelController extends AbstractController
     {
         $data=json_decode($request->getContent(), true);
         $homeagency=$this->checkHomeAgency();
+        $user= $this->getDoctrine()->getRepository(User::class)->find($this->getUser());
         $refuelserrors=[];
-        $system=$this->getDoctrine()->getRepository(System::class)->find(1);
         $numLine=0;
         foreach ($data["refuels"] as $refuel){
             $system=$this->getDoctrine()->getRepository(System::class)->find($refuel["system"]);
             $product=$this->getDoctrine()->getRepository(Product::class)->find($refuel["product"]);
             $date=\DateTime::createFromFormat("m-d-Y", $refuel["date"]);
+            $creationDate=new \DateTime();
             if (!$date)$date=null;
             $newrefuel=new Refuel();
             $newrefuel->setCodeCard($refuel["codecard"]);
@@ -52,6 +53,8 @@ class RefuelController extends AbstractController
             $newrefuel->setDate($date);
             $newrefuel->setProduct($product);
             $newrefuel->setSystem($system);
+            $newrefuel->setCreatorUser($user);
+            $newrefuel->setCreationDate($date);
             $newrefuel->setHomeagency($homeagency);
             $errors=$validator->validate($newrefuel);
             if (count($errors)==0) {
@@ -99,6 +102,8 @@ class RefuelController extends AbstractController
      */
     public function addFileRefuel(Request $request, FileUploader $fileUploader, FileExtractData $fileExtractData){
         /*Data*/
+        $user=$this->getDoctrine->getRepository(User::class)->find($this->getUser());
+        $creationdate=new \DateTime("now");
         $data= json_decode($request->getContent(), true);
         $numSystem=$data["system"];
         $filedata=base64_decode($data["data"]);
@@ -110,7 +115,7 @@ class RefuelController extends AbstractController
         $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
         /*Extract Data*/
         $file=new File($newFileName);
-        $refuelserrors=$fileExtractData->extractDataFromFile($file, $system, $homeagency);
+        $refuelserrors=$fileExtractData->extractDataFromFile($file, $system, $homeagency, $user, $creationdate);
         return new JsonResponse($refuelserrors);
     }
 
