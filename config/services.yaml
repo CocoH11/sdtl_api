@@ -26,6 +26,15 @@ parameters:
     refuel_mileage_name: '%env(REFUEL_MILEAGE_NAME)%'
     refuel_product_name: '%env(REFUEL_PRODUCT_NAME)%'
 
+    ##parameters for the recording of user entity object
+    user_user_name: '%env(USER_USER_NAME)%'
+    user_login_name: '%env(USER_LOGIN_NAME)%'
+    user_email_name: '%env(USER_EMAIL_NAME)%'
+    user_password_name: '%env(USER_PASSWORD_NAME)%'
+    user_isadmin_name: '%env(USER_ISADMIN_NAME)%'
+    user_homeagency_name: '%env(USER_HOMEAGENCY_NAME)%'
+
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -101,3 +110,13 @@ services:
             $refuel_product_name: '%refuel_product_name%'
             $refuel_refuels_name: '%refuel_refuels_name%'
             $refuel_refuel_name: '%refuel_refuel_name%'
+
+    ##Service for the user management
+    App\Controller\UserController:
+        arguments:
+            $user_user_name: '%user_user_name%'
+            $user_login_name: '%user_login_name%'
+            $user_email_name: '%user_email_name%'
+            $user_password_name: '%user_password_name%'
+            $user_isadmin_name: '%user_isadmin_name%'
+            $user_homeagency_name: '%user_homeagency_name%'

@@ -26,8 +26,10 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     private $jwt_path;
     private $jwt_access_name;
     private $jwt_refresh_name;
+    private $user_login_name;
+    private $user_password_name;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager, $jwt_secret, $jwt_domain, $jwt_path, $jwt_access_name, $jwt_refresh_name)
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager, $jwt_secret, $jwt_domain, $jwt_path, $jwt_access_name, $jwt_refresh_name, $user_login_name, $user_password_name)
     {
         $this->passwordEncoder = $passwordEncoder;
         $this->manager=$manager;
@@ -36,6 +38,8 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
         $this->jwt_path=$jwt_path;
         $this->jwt_access_name=$jwt_access_name;
         $this->jwt_refresh_name=$jwt_refresh_name;
+        $this->user_login_name=$user_login_name;
+        $this->user_password_name=$user_password_name;
     }
 
     public function supports(Request $request)
@@ -47,22 +51,22 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         $data=json_decode($request->getContent(), true);
-        $login=$data["login"];
-        $password=$data["password"];
+        $login=$data[$this->user_login_name];
+        $password=$data[$this->user_password_name];
         return [
-            'login' => $login,
-            'password' => $password,
+            $this->user_login_name => $login,
+            $this->user_password_name => $password,
         ];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        return $userProvider->loadUserByUsername($credentials['login']);
+        return $userProvider->loadUserByUsername($credentials[$this->user_login_name]);
     }
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
+        return $this->passwordEncoder->isPasswordValid($user, $credentials[$this->user_password_name]);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
@@ -93,7 +97,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
         //Refresh token
         $expireTimeRefresh = time() + 3600;
         $tokenPayLoadRefresh=[
-            'refresh_token'=>$refreshTokenString,
+            $this->jwt_refresh_name=>$refreshTokenString,
             'exp'=>$expireTimeRefresh
         ];
         $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->jwt_secret);

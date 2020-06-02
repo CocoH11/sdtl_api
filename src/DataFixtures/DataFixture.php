@@ -93,10 +93,10 @@ class DataFixture extends Fixture
     public function loadUser(ObjectManager $manager)
     {
         $users=[
-            ["login"=>"cholcvart", "password"=>"dinosaure0", "roles"=>["ROLE_USER", "ROLE_ADMIN"], "homeagency"=>1],
-            ["login"=>"dholcvart", "password"=>"dinosaure1", "roles"=>["ROLE_USER"], "homeagency"=>1],
-            ["login"=>"aholcvart", "password"=>"dinosaure2", "roles"=>["ROLE_USER"], "homeagency"=>2],
-            ["login"=>"bholcvart", "password"=>"dinosaure3", "roles"=>["ROLE_USER"], "homeagency"=>9]
+            ["login"=>"cholcvart", "email"=>"corentin.holcvart@hotmail.fr", "password"=>"dinosaure0", "roles"=>["ROLE_USER", "ROLE_ADMIN"], "homeagency"=>1],
+            ["login"=>"dholcvart", "email"=>"d.holcvart@hotmail.fr", "password"=>"dinosaure1", "roles"=>["ROLE_USER"], "homeagency"=>1],
+            ["login"=>"aholcvart", "email"=>"a.holcvart@hotmail.fr", "password"=>"dinosaure2", "roles"=>["ROLE_USER"], "homeagency"=>2],
+            ["login"=>"bholcvart", "email"=>"b.holcvart@hotmail.fr", "password"=>"dinosaure3", "roles"=>["ROLE_USER"], "homeagency"=>9]
         ];
 
         foreach ($users as $user){
@@ -104,6 +104,7 @@ class DataFixture extends Fixture
             $homeagency=$manager->getRepository(Homeagency::class)->find($user["homeagency"]);
             $newuser
                 ->setLogin($user["login"])
+                ->setEmail($user["email"])
                 ->setPassword($this->passwordEncoder->encodePassword($newuser, $user["password"]))
                 ->setRoles($user["roles"])
                 ->setHomeagency($homeagency);
