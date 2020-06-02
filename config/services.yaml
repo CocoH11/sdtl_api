@@ -15,7 +15,8 @@ parameters:
     jwt_refresh_name: '%env(JWT_REFRESH_NAME)%'
 
     ##parameters for the recording of entity object
-    refuel_refuels_name: '%env(REFUEL_REFUElS_NAME)%'
+    refuel_refuel_name: '%env(REFUEL_REFUEL_NAME)%'
+    refuel_refuels_name: '%env(REFUEL_REFUELS_NAME)%'
     refuel_volume_name: '%env(REFUEL_VOLUME_NAME)%'
     refuel_codecard_name: '%env(REFUEL_CODECARD_NAME)%'
     refuel_codedriver_name: '%env(REFUEL_CODEDRIVER_NAME)%'

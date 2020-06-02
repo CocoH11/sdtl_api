@@ -140,27 +140,29 @@ class RefuelController extends AbstractController
         $modifieruser=$this->getDoctrine()->getRepository(User::class)->find($this->getUser());
         $refuel->setModifierUser($modifieruser);
         $refuel->setModificationDate($modificationdate);
-
         $errors=$validator->validate($refuel);
+        $tab_errors = [];
         if (count($errors)>0) {
-            $tab_errors = [];
             for ($i = 0; $i < count($errors); $i++) {
                 array_push($tab_errors, $errors->get($i)->getMessage());
             }
-            array_push($refuelserrors, [$tab_errors]);
         }else {
             $this->getDoctrine()->getManager()->persist($refuel);
             $this->getDoctrine()->getManager()->flush();
         }
-        return new JsonResponse($errors);
+        return new JsonResponse($tab_errors);
     }
 
     /**
      * @Route("/refuel/file", name="addFileRefuel", methods={"PUT"})
+     * @param Request $request
+     * @param FileUploader $fileUploader
+     * @param FileExtractData $fileExtractData
+     * @return JsonResponse
      */
     public function addFileRefuel(Request $request, FileUploader $fileUploader, FileExtractData $fileExtractData){
         /*Data*/
-        $user=$this->getDoctrine->getRepository(User::class)->find($this->getUser());
+        $user=$this->getDoctrine()->getRepository(User::class)->find($this->getUser());
         $creationdate=new \DateTime("now");
         $data= json_decode($request->getContent(), true);
         $numSystem=$data[$this->refuel_system_name];

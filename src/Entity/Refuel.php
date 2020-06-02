@@ -90,7 +90,7 @@ class Refuel
     private $creationDate;
 
     /**
-     * @ORM\Column(nullable=false)
+     * @ORM\JoinColumn(nullable=false)
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="refuels")
      */
     private $creatorUser;
@@ -101,7 +101,7 @@ class Refuel
     private $modificationDate;
 
     /**
-     * @ORM\Column(nullable=true)
+     * @ORM\JoinColumn(nullable=true)
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="modifiedRefuels")
      */
     private $modifierUser;

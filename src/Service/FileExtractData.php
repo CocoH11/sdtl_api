@@ -24,6 +24,8 @@ class FileExtractData
 
     public function __construct(EntityManagerInterface $manager, ValidatorInterface $validator)
     {
+        $this->manager=$manager;
+        $this->validator=$validator;
 
     }
 
