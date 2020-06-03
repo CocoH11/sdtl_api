@@ -32,7 +32,6 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
     }
     public function supports(Request $request)
     {
-        var_dump("accessauthenticator");
         return $request->cookies->get($this->jwt_access_name) ? true : false;
     }
 

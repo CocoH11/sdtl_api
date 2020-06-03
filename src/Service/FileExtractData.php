@@ -62,7 +62,6 @@ class FileExtractData
             $numLine=0;
             while (($buffer = fgets($readable)) !== false) {
                 $line=preg_split("[\s{2,}]", $buffer);
-                $newrefuel=new Refuel();
                 $date= DateTime::createFromFormat("YmdHi", substr($line[1], 0, 12));
                 if (substr($line[1], 22, strlen($line[1])-22)==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
@@ -71,7 +70,7 @@ class FileExtractData
                 $volume=floatval(substr($line[2], 0, 4).".".substr($line[2], 4, 2));
                 $stationlocation=substr($line[0], 13, strlen($line[0])-12);
                 $mileage=intval(substr($line[2], 100, 9));
-                $this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
+                $newrefuel=$this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);

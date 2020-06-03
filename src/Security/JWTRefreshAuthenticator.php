@@ -4,14 +4,11 @@
 namespace App\Security;
 
 
-use App\Entity\RefreshToken;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Firebase\JWT\JWT;
-use http\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -53,7 +50,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         $decodedJwt=JWT::decode($request->cookies->get($this->jwt_refresh_name), $this->jwt_secret, ["HS256"]);
-        return ['refreshToken' => $decodedJwt->refresh_token];
+        return ['refreshToken' => $decodedJwt->jwt_refresh];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
@@ -76,9 +73,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
-        //$oldJwtAuthentication=JWT::decode($request->cookies->get("jwtAuthentication"),$secret, ['HS256']);
         if (!$request->cookies->get($this->jwt_access_name)){
-            var_dump("refreshauthenticator accesstoken invalide");
             $expireTimeAuthentication = time() +10;
             $tokenPayloadAuthentication = [
                 'user_id' => $token->getUser()->getId(),

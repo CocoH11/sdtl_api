@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Refuel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,6 +18,23 @@ class RefuelRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Refuel::class);
+    }
+
+    public function findAllRefuels($page, $limit)
+    {
+        $query = $this->createQueryBuilder('p')
+            ->getQuery()
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+        return new Paginator($query);
+    }
+
+    public function getNbRefuels(){
+        $query = $this->createQueryBuilder('p')
+            ->select('count(p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+        return $query;
     }
 
     // /**

@@ -25,6 +25,7 @@ parameters:
     refuel_stationlocation_name: '%env(REFUEL_STATIONLOCATION_NAME)%'
     refuel_mileage_name: '%env(REFUEL_MILEAGE_NAME)%'
     refuel_product_name: '%env(REFUEL_PRODUCT_NAME)%'
+    limit: '%env(LIMIT)%'
 
     ##parameters for the recording of user entity object
     user_user_name: '%env(USER_USER_NAME)%'
@@ -88,6 +89,8 @@ services:
             $jwt_path: '%jwt_path%'
             $jwt_access_name: '%jwt_access_name%'
             $jwt_refresh_name: '%jwt_refresh_name%'
+            $user_login_name: '%user_login_name%'
+            $user_password_name: '%user_password_name%'
 
     App\Controller\SecurityController:
         arguments:
@@ -110,6 +113,7 @@ services:
             $refuel_product_name: '%refuel_product_name%'
             $refuel_refuels_name: '%refuel_refuels_name%'
             $refuel_refuel_name: '%refuel_refuel_name%'
+            $limit: '%limit%'
 
     ##Service for the user management
     App\Controller\UserController:

@@ -42,13 +42,13 @@ class SecurityController extends AbstractController
      */
     public function logout(Request $request)
     {
-        $refreshTokenString=JWT::decode($request->cookies->get($this->jwt_refresh_name), $this->jwt_secret, ["HS256"])->refresh_token;
+        $refreshTokenString=JWT::decode($request->cookies->get($this->jwt_refresh_name), $this->jwt_secret, ["HS256"])->jwt_refresh;
         $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(array('apiToken' => $refreshTokenString));
         $user->setApiToken(null);
         $this->getDoctrine()->getManager()->flush();
         setcookie($this->jwt_refresh_name, null, time(), $this->jwt_path, $this->jwt_domain, false, true);
         setcookie($this->jwt_access_name, null, time(), $this->jwt_path, $this->jwt_domain, false, true);
-        return new JsonResponse([]);
+        return new JsonResponse(["authentication"=>false]);
     }
 
     /**

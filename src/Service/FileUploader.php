@@ -26,7 +26,6 @@ class FileUploader
         $this->filesystem->touch($new_file_path);
         $this->filesystem->chmod($new_file_path, 777);
         $this->filesystem->dumpFile($new_file_path, $filecontent);
-        var_dump(mime_content_type($new_file_path));
         return $new_file_path;
     }
 

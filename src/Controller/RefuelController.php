@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\Entity\Refuel;
 use App\Entity\User;
 use App\Entity\System;
+use App\Repository\RefuelRepository;
 use App\Service\FileExtractData;
 use App\Service\FileUploader;
 use Doctrine\Persistence\ManagerRegistry;
@@ -35,8 +36,9 @@ class RefuelController extends AbstractController
     private $refuel_stationlocation_name;
     private $refuel_mileage_name;
     private $refuel_product_name;
+    private $limit;
 
-    public function __construct(string $refuel_refuel_name, string $refuel_refuels_name, string $refuel_volume_name, string $refuel_codecard_name, string $refuel_codedriver_name, string $refuel_system_name, string $refuel_date_name, string $refuel_stationlocation_name, string $refuel_mileage_name, string $refuel_product_name)
+    public function __construct(string $refuel_refuel_name, string $refuel_refuels_name, string $refuel_volume_name, string $refuel_codecard_name, string $refuel_codedriver_name, string $refuel_system_name, string $refuel_date_name, string $refuel_stationlocation_name, string $refuel_mileage_name, string $refuel_product_name, int $limit)
     {
         $this->refuel_codecard_name=$refuel_codecard_name;
         $this->refuel_codedriver_name=$refuel_codedriver_name;
@@ -48,6 +50,36 @@ class RefuelController extends AbstractController
         $this->refuel_system_name=$refuel_system_name;
         $this->refuel_refuels_name=$refuel_refuels_name;
         $this->refuel_refuel_name=$refuel_refuel_name;
+        $this->limit=$limit;
+    }
+
+    /**
+     * @Route("/nbrefuels", name="getNbRefuels", methods={"GET"})
+     */
+    public function getNbRefuels(): JsonResponse
+    {
+        return new JsonResponse(intval($this->getDoctrine()->getRepository(Refuel::class)->getNbRefuels()));
+    }
+
+    /**
+     * @Route("/refuels/{page<\d+>?1}", name="getRefuels", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getRefuels(Request $request): JsonResponse
+    {
+        $page = $request->query->get('page');
+        if(is_null($page) || $page < 1) {
+            $page = 1;
+        }
+        var_dump($page);
+        $refuels=$this->getDoctrine()->getRepository(Refuel::class)->findAllRefuels($page, $this->limit);
+        $datatosend=[];
+
+        foreach ($refuels as $refuel){
+            array_push($datatosend, ["id"=>$refuel->getId(), "volume"=>$refuel->getVolume(), "codecard"=>$refuel->getCodeCard(), "codedriver"=>$refuel->getCodeDriver(), "system"=>$refuel->getSystem()->getId(), "stationlocation"=>$refuel->getStationLocation(), "product"=>$refuel->getProduct()->getId()]);
+        }
+        return new JsonResponse($datatosend);
     }
 
     /**
@@ -176,7 +208,9 @@ class RefuelController extends AbstractController
         /*Extract Data*/
         $file=new File($newFileName);
         $refuelserrors=$fileExtractData->extractDataFromFile($file, $system, $homeagency, $user, $creationdate);
-        return new JsonResponse($refuelserrors);
+        if (count($refuelserrors)==0)$message="Tout s'est bien passé";
+        else $message="Il y a des erreurs dans le fichier";
+        return new JsonResponse([$message, $refuelserrors]);
     }
 
     public function checkSystem(int $sysValue){
