@@ -6,7 +6,6 @@ use App\Entity\Product;
 use App\Entity\Refuel;
 use App\Entity\User;
 use App\Entity\System;
-use App\Repository\RefuelRepository;
 use App\Service\FileExtractData;
 use App\Service\FileUploader;
 use Doctrine\Persistence\ManagerRegistry;
@@ -72,7 +71,6 @@ class RefuelController extends AbstractController
         if(is_null($page) || $page < 1) {
             $page = 1;
         }
-        var_dump($page);
         $refuels=$this->getDoctrine()->getRepository(Refuel::class)->findAllRefuels($page, $this->limit);
         $datatosend=[];
 
@@ -98,8 +96,8 @@ class RefuelController extends AbstractController
         foreach ($data[$this->refuel_refuels_name] as $refuel){
             $system=$this->getDoctrine()->getRepository(System::class)->find($refuel[$this->refuel_system_name]);
             $product=$this->getDoctrine()->getRepository(Product::class)->find($refuel[$this->refuel_product_name]);
-            $date=\DateTime::createFromFormat("m-d-Y", $refuel[$this->refuel_date_name]);
-            $creationDate=new \DateTime();
+            $date=\DateTime::createFromFormat("Y-m-d", $refuel[$this->refuel_date_name]);
+            $creationDate=new \DateTime("now");
             if (!$date)$date=null;
             $newrefuel=new Refuel();
             $newrefuel->setCodeCard($refuel[$this->refuel_codecard_name]);
@@ -111,7 +109,7 @@ class RefuelController extends AbstractController
             $newrefuel->setProduct($product);
             $newrefuel->setSystem($system);
             $newrefuel->setCreatorUser($user);
-            $newrefuel->setCreationDate($date);
+            $newrefuel->setCreationDate($creationDate);
             $newrefuel->setHomeagency($homeagency);
             $errors=$validator->validate($newrefuel);
             if (count($errors)>0) {
@@ -124,7 +122,9 @@ class RefuelController extends AbstractController
             $numLine++;
         }
         $this->getDoctrine()->getManager()->flush();
-        return new JsonResponse($refuelserrors);
+        if (count($refuelserrors)==0)$message="Tout s'est bien passé";
+        else $message="Il y a des erreurs dans le fichier";
+        return new JsonResponse([$message, $refuelserrors]);
 
     }
 
