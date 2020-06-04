@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\System;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +20,8 @@ class SystemController extends AbstractController
      * @Route("/systems", name="getSystems", methods={"GET"})
      */
     public function getSystems(Request $request){
-        $systems=$this->getDoctrine()->getRepository(System::class)->findAll();
+        $homeagency=$this->getDoctrine()->getRepository(User::class)->find($this->getUser())->getHomeagency();
+        $systems=$homeagency->getSystems();
         $datatosend=[];
 
         foreach ($systems as $system){

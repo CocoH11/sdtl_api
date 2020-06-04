@@ -67,15 +67,16 @@ class RefuelController extends AbstractController
      */
     public function getRefuels(Request $request): JsonResponse
     {
+        $homeagency=$this->getDoctrine()->getRepository(User::class)->find($this->getUser())->getHomeagency();
         $page = $request->query->get('page');
         if(is_null($page) || $page < 1) {
             $page = 1;
         }
-        $refuels=$this->getDoctrine()->getRepository(Refuel::class)->findAllRefuels($page, $this->limit);
+        $refuels=$this->getDoctrine()->getRepository(Refuel::class)->findAllRefuelsByHomeagency($page, $this->limit, $homeagency->getId());
         $datatosend=[];
 
         foreach ($refuels as $refuel){
-            array_push($datatosend, ["id"=>$refuel->getId(), "volume"=>$refuel->getVolume(), "codecard"=>$refuel->getCodeCard(), "codedriver"=>$refuel->getCodeDriver(), "system"=>$refuel->getSystem()->getId(), "stationlocation"=>$refuel->getStationLocation(), "product"=>$refuel->getProduct()->getId()]);
+            array_push($datatosend, ["id"=>$refuel->getId(), "volume"=>$refuel->getVolume(), "codecard"=>$refuel->getCodeCard(), "codedriver"=>$refuel->getCodeDriver(), "system"=>$refuel->getSystem()->getId(), "stationlocation"=>$refuel->getStationLocation(), "product"=>$refuel->getProduct()->getId(), "mileage"=>$refuel->getMileage(), "date"=>$refuel->getDate()]);
         }
         return new JsonResponse($datatosend);
     }

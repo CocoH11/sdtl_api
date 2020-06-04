@@ -20,9 +20,11 @@ class RefuelRepository extends ServiceEntityRepository
         parent::__construct($registry, Refuel::class);
     }
 
-    public function findAllRefuels($page, $limit)
+    public function findAllRefuelsByHomeagency($page, $limit, $homeagency_id)
     {
         $query = $this->createQueryBuilder('p')
+            ->andWhere('p.homeagency = :val')
+            ->setParameter('val', $homeagency_id)
             ->getQuery()
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
