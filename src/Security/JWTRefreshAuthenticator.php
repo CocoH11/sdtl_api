@@ -39,7 +39,6 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
         return new JsonResponse([
             'error' => 'Access Denied'.'hello'
         ]);
-        // TODO: Implement start() method.
     }
 
     public function supports(Request $request)

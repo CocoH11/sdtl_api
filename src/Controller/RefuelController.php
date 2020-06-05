@@ -67,17 +67,37 @@ class RefuelController extends AbstractController
      */
     public function getRefuels(Request $request): JsonResponse
     {
+        $datatosend=[];
+        //Homeagency
         $homeagency=$this->getDoctrine()->getRepository(User::class)->find($this->getUser())->getHomeagency();
+
+        //Refuel
         $page = $request->query->get('page');
         if(is_null($page) || $page < 1) {
             $page = 1;
         }
         $refuels=$this->getDoctrine()->getRepository(Refuel::class)->findAllRefuelsByHomeagency($page, $this->limit, $homeagency->getId());
-        $datatosend=[];
-
+        $refuels_tab=[];
         foreach ($refuels as $refuel){
-            array_push($datatosend, ["id"=>$refuel->getId(), "volume"=>$refuel->getVolume(), "codecard"=>$refuel->getCodeCard(), "codedriver"=>$refuel->getCodeDriver(), "system"=>$refuel->getSystem()->getId(), "stationlocation"=>$refuel->getStationLocation(), "product"=>$refuel->getProduct()->getId(), "mileage"=>$refuel->getMileage(), "date"=>$refuel->getDate()]);
+            array_push($refuels_tab, ["id"=>$refuel->getId(), "volume"=>$refuel->getVolume(), "codecard"=>$refuel->getCodeCard(), "codedriver"=>$refuel->getCodeDriver(), "system"=>$refuel->getSystem()->getId(), "stationlocation"=>$refuel->getStationLocation(), "product"=>$refuel->getProduct()->getId(), "mileage"=>$refuel->getMileage(), "date"=>$refuel->getDate()]);
         }
+
+        //System
+        $systems=$homeagency->getSystems();
+        $systems_tab=[];
+        foreach($systems as $system){
+            array_push($systems_tab, ["id"=>$system->getId(), "name"=>$system->getName()]);
+        }
+
+        //Product
+        $products=$this->getDoctrine()->getRepository(Product::class)->findAll();
+        $products_tab=[];
+        foreach ($products as $product){
+            array_push($products_tab, ["id"=>$product->getId(), "name"=>$product->getName()]);
+        }
+        array_push($datatosend, $refuels_tab);
+        array_push($datatosend, $systems_tab);
+        array_push($datatosend, $products_tab);
         return new JsonResponse($datatosend);
     }
 
@@ -97,7 +117,7 @@ class RefuelController extends AbstractController
         foreach ($data[$this->refuel_refuels_name] as $refuel){
             $system=$this->getDoctrine()->getRepository(System::class)->find($refuel[$this->refuel_system_name]);
             $product=$this->getDoctrine()->getRepository(Product::class)->find($refuel[$this->refuel_product_name]);
-            $date=\DateTime::createFromFormat("Y-m-d", $refuel[$this->refuel_date_name]);
+            $date=\DateTime::createFromFormat("Y-m-dH:m:s", $refuel[$this->refuel_date_name]);
             $creationDate=new \DateTime("now");
             if (!$date)$date=null;
             $newrefuel=new Refuel();
@@ -166,7 +186,7 @@ class RefuelController extends AbstractController
             $refuel->setSystem($system);
         }
         if (isset($refueldata[$this->refuel_date_name])){
-            $date=\DateTime::createFromFormat("Y-m-d", $refueldata[$this->refuel_date_name]);
+            $date=\DateTime::createFromFormat("Y-m-dH:m:s", $refueldata[$this->refuel_date_name]);
             $refuel->setDate($date);
         }
         $modificationdate=new \DateTime("now");
