@@ -12,7 +12,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 {
     public function onKernelException(ExceptionEvent $event)
     {
-        /*$exception = $event->getThrowable();
+        $exception = $event->getThrowable();
         $data = [
             'status' => $exception->getCode(),
             'message' => $exception->getMessage(),
@@ -28,7 +28,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
         }else{
             $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        $event->setResponse($response);*/
+        $event->setResponse($response);
     }
 
     public static function getSubscribedEvents()

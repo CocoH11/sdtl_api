@@ -30,7 +30,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
         $this->jwt_secret=$jwt_secret;
         $this->jwt_path=$jwt_path;
         $this->jwt_domain=$jwt_domain;
-        $this->jwt_access_name=$jwt_refresh_name;
+        $this->jwt_access_name=$jwt_access_name;
         $this->jwt_refresh_name=$jwt_refresh_name;
     }
 
@@ -73,7 +73,8 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
-        if (!$request->cookies->get($this->jwt_access_name)){
+        $cookie=$request->cookies->get($this->jwt_access_name);
+        if ($cookie){
             $expireTimeAuthentication = time() +10;
             $tokenPayloadAuthentication = [
                 'user_id' => $token->getUser()->getId(),
@@ -90,7 +91,7 @@ class JWTRefreshAuthenticator extends AbstractGuardAuthenticator
             //Refresh token
             $expireTimeRefresh = time() + 3600;
             $tokenPayLoadRefresh=[
-                'refresh_token'=>$refreshTokenString,
+                $this->jwt_refresh_name=>$refreshTokenString,
                 'exp'=>$expireTimeRefresh
             ];
             $jwtRefresh=JWT::encode($tokenPayLoadRefresh, $this->jwt_secret);

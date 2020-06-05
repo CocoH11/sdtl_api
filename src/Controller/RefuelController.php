@@ -143,7 +143,7 @@ class RefuelController extends AbstractController
     }
 
     /**
-     * @Route("/refuel/{id}", name="updateRefuel", methods={"PATCH"})
+     * @Route("/refuel/{id}", name="updateRefuel", methods={"PUT"})
      * @ParamConverter(name="refuel", class="App:Refuel")
      * @param Request $request
      * @param Refuel $refuel
@@ -166,7 +166,7 @@ class RefuelController extends AbstractController
             $refuel->setSystem($system);
         }
         if (isset($refueldata[$this->refuel_date_name])){
-            $date=\DateTime::createFromFormat("m-d-Y", $refueldata[$this->refuel_date_name]);
+            $date=\DateTime::createFromFormat("Y-m-d", $refueldata[$this->refuel_date_name]);
             $refuel->setDate($date);
         }
         $modificationdate=new \DateTime("now");
