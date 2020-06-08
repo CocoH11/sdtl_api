@@ -26,7 +26,7 @@ class System
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Refuel", mappedBy="system")
      */
-    private ArrayCollection $refuels;
+    private $refuels;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -36,7 +36,7 @@ class System
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Homeagency", mappedBy="systems")
      */
-    private ArrayCollection $homeagencies;
+    private $homeagencies;
 
     /**
      * @ORM\Column(type="string", length=255)
