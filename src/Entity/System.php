@@ -16,37 +16,37 @@ class System
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private ?string $name;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Refuel", mappedBy="system")
      */
-    private $refuels;
+    private ArrayCollection $refuels;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $directoryName;
+    private ?string $directoryName;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Homeagency", mappedBy="systems")
      */
-    private $homeagencies;
+    private ArrayCollection $homeagencies;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $dieselFileLabel;
+    private ?string $dieselFileLabel;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $adblueFielLabel;
+    private ?string $adblueFielLabel;
 
     public function __construct()
     {
