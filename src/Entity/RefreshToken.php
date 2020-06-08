@@ -15,17 +15,17 @@ class RefreshToken
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $token;
+    private ?string $token;
 
     /**
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="refreshToken")
      */
-    private $user;
+    private ?User $user;
 
     public function getId(): ?int
     {

@@ -19,33 +19,33 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $login;
+    private ?string $login;
 
     /**
      * @ORM\Column(type="json")
      */
-    private $roles = [];
+    private array $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      */
-    private $password;
+    private string $password;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="users")
      */
-    private $homeagency;
+    private ?Homeagency $homeagency;
 
     /**
     * @ORM\Column(type="string", unique=true, nullable=true, name="api_token")
     */
-    private $apiToken;
+    private ?string $apiToken;
 
     /**
      * @ORM\OneToMany(targetEntity=Refuel::class, mappedBy="creatorUser")
@@ -60,12 +60,12 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      */
-    private $email;
+    private ?string $email;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $lastnumberrefuels;
+    private ?int $lastnumberrefuels;
 
     public function __construct()
     {
