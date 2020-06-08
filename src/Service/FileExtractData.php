@@ -11,7 +11,9 @@ use App\Entity\System;
 use App\Entity\User;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -19,8 +21,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class FileExtractData
 {
-    private $manager;
-    private $validator;
+    private EntityManagerInterface $manager;
+    private ValidatorInterface $validator;
 
     public function __construct(EntityManagerInterface $manager, ValidatorInterface $validator)
     {
@@ -86,7 +88,6 @@ class FileExtractData
     }
 
     public function extractDataFromFileDKV(File $file, System $system, Homeagency $homeagency, array $refuelserrors, User $user, DateTime $creationdate){
-        return "";
     }
 
     public function extractDataFromFileUTA(File $file, System $system, Homeagency $homeagency, array $refuelserrors, User $user, DateTime $creationdate){
@@ -118,6 +119,41 @@ class FileExtractData
     }
 
     public function extractDataFromFileLAFFON(File $file, System $system, Homeagency $homeagency, array $refuelserrors, User $user, DateTime $creationdate){
+        $reader=new Xls();
+        $spreadsheet=$reader->load($file->getPathname());
+        $sheet=$spreadsheet->getActiveSheet();
+        $numberLines=$sheet->getHighestRow();
+        $blindmove=true;
+        $numLine=0;
+        $step=1;
+        $numcard=null;
+        while($numLine<$numberLines){
+            $refCellvalue=strval($sheet->getCell("A".$numLine)->getValue());
+            if ($blindmove && preg_match("/^[0-9]{5,5}$/", $refCellvalue)){
+                $blindmove=false;
+                $step=2;
+                $numcard=$refCellvalue;
+                $numLine++;
+            }else if (!$blindmove && preg_match("/^TOTAL$/", $refCellvalue)){
+                $blindmove=true;
+                $step=1;
+            }
+            else if (!$blindmove){
+                $date=Date::excelToDateTimeObject($refCellvalue);
+                $codedriver=strval($sheet->getCell("C".$numLine)->getValue());
+                $volume=floatval($sheet->getCell("F".$numLine)->getValue());
+                $mileage=intval($sheet->getCell("H".$numLine)->getValue());
+                if (strval($sheet->getCell("D".$numLine)->getValue())==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
+                else $product=$this->manager->getRepository(Product::class)->findOneBy(["name", "ADBLUE"]);
+                $newrefuel=$this->createRefuel($homeagency->getName(), $date, $numcard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
+                $errors=$this->validator->validate($newrefuel);
+                if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
+                else $this->manager->persist($newrefuel);
+            }
+            $numLine+=$step;
+        }
+        $this->manager->flush();
+        return $refuelserrors;
     }
 
     public function extractDataFromFileTOKHEIM(File $file, System $system, Homeagency $homeagency, array $refuelserrors, User $user, DateTime $creationdate){
@@ -184,12 +220,16 @@ class FileExtractData
     }
 
     public function buildErrorsTab(ConstraintViolationListInterface $errors, int $numLine){
-        $tab_errors=[];
+        $tab_errors=["numLine"=>$numLine, "errors_messages"=>[], "errors_codes"=>[]];
         for ($i=0; $i<count($errors); $i++){
-            array_push($tab_errors,$errors->get($i)->getMessage());
+            $constraint=$errors->get($i)->getConstraint();
+            $error_code = isset($constraint->payload['error_code']) ? $constraint->payload['error_code'] : null;
+            $error_message=$errors->get($i)->getMessage();
+            array_push($tab_errors['errors_codes'], $error_code);
+            array_push($tab_errors["errors_messages"], $error_message);
         }
 
-        return [$numLine, $tab_errors];
+        return $tab_errors;
     }
 
     public function createRefuel(String $stationlocation, DateTime $date, String $codecard, String $codedriver, Float $volume, Product $product, int $mileage, System $system, Homeagency $homeagency, User $user, DateTime $creationdate): Refuel{

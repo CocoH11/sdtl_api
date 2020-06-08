@@ -14,9 +14,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class DataFixture extends Fixture
 {
-    private $passwordEncoder;
-    private $targetDirectory;
-    private $filesystem;
+    private UserPasswordEncoderInterface $passwordEncoder;
+    private string $targetDirectory;
+    private Filesystem $filesystem;
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder, $targetDirectory){
         $this->passwordEncoder = $passwordEncoder;

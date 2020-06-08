@@ -62,6 +62,11 @@ class User implements UserInterface
      */
     private $email;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $lastnumberrefuels;
+
     public function __construct()
     {
         $this->createdRefuels = new ArrayCollection();
@@ -243,6 +248,18 @@ class User implements UserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getLastnumberrefuels(): ?int
+    {
+        return $this->lastnumberrefuels;
+    }
+
+    public function setLastnumberrefuels(int $lastnumberrefuels): self
+    {
+        $this->lastnumberrefuels = $lastnumberrefuels;
 
         return $this;
     }

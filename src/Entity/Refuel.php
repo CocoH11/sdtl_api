@@ -6,105 +6,115 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RefuelRepository")
- * @UniqueEntity(fields={"codeCard", "codeDriver","date"}, message="This line already exists")
+ * @UniqueEntity(fields={"codeCard", "codeDriver","date"}, message="This line already exists", payload={"error_code"=REFUEL::ERROR_DUPLICATE})
  */
 class Refuel
 {
+    const ERROR_DUPLICATE="duplicate";
+    const ERROR_VOLUME="volume";
+    const ERROR_CODECARD="codecard";
+    const ERROR_CODEDRIVER="codedriver";
+    const ERROR_SYSTEM="system";
+    const ERROR_HOMEAGENCY="homeagency";
+    const ERROR_DATE="date";
+    const ERROR_STATIONLOCATION="stationlocation";
+    const ERROR_MILEAGE="mileage";
+    const ERROR_PRODUCT="product";
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="float")
-     * @Assert\NotNull(message="No volume available")
-     * @Assert\Positive(message="The volume specified is abnormal")
-     * @Assert\LessThan(value="1000", message="The volume specified is abnormal")
+     * @Assert\NotNull(message="No volume available", payload={"error_code"=REFUEL::ERROR_VOLUME})
+     * @Assert\Positive(message="The volume specified is abnormal", payload={"error_code"=REFUEL::ERROR_VOLUME})
+     * @Assert\LessThan(value="1000", message="The volume specified is abnormal", payload={"error_code"=REFUEL::ERROR_VOLUME})
      */
-    private $volume;
+    private ?float $volume;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotNull(message="No card code available")
-     * @Assert\NotBlank(message="No card code available")
+     * @Assert\NotNull(message="No card code available", payload={"error_code"=REFUEL::ERROR_CODECARD})
+     * @Assert\NotBlank(message="No card code available", payload={"error_code"=REFUEL::ERROR_CODECARD})
      */
-    private $codeCard;
+    private ?string $codeCard;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\NotNull(message="No Driver code available")
-     * @Assert\NotBlank(message="No Driver code available")
+     * @Assert\NotNull(message="No Driver code available", payload={"error_code"=REFUEL::ERROR_CODEDRIVER})
+     * @Assert\NotBlank(message="No Driver code available", payload={"error_code"=REFUEL::ERROR_CODEDRIVER})
      */
-    private $codeDriver;
+    private ?string $codeDriver;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\System", inversedBy="refuels")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $system;
+    private ?System $system;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Homeagency", inversedBy="refuels")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $homeagency;
+    private ?Homeagency $homeagency;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotNull(message="No date available")
-     * @Assert\NotBlank(message="no date available")
-     * @Assert\Type(type="datetime", message="the date is not valide")
-     * @Assert\GreaterThan("-20 years")
+     * @Assert\NotNull(message="No date available", payload={"error_code"=REFUEL::ERROR_DATE})
+     * @Assert\NotBlank(message="no date available", payload={"error_code"=REFUEL::ERROR_DATE})
+     * @Assert\Type(type="datetime", message="the date is not valide", payload={"error_code"=REFUEL::ERROR_DATE})
+     * @Assert\GreaterThan("-20 years", payload={"error_code"=REFUEL::ERROR_DATE})
      */
-    private $date;
+    private ?\DateTimeInterface $date;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotNull(message="No station location available")
-     * @Assert\NotBlank(message="No station location available")
+     * @Assert\NotNull(message="No station location available", payload={"error_code"=REFUEL::ERROR_STATIONLOCATION})
+     * @Assert\NotBlank(message="No station location available", payload={"error_code"=REFUEL::ERROR_STATIONLOCATION})
      */
-    private $stationLocation;
+    private ?string $stationLocation;
 
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotNull(message="No mileage available")
-     * @Assert\Positive(message="The mileage specified is abnormal")
-     * @Assert\LessThan(value="500000000", message="The mileage specified is abnormal")
+     * @Assert\Positive(message="The mileage specified is abnormal", payload={"error_code"=REFUEL::ERROR_MILEAGE})
+     * @Assert\LessThan(value="500000000", message="The mileage specified is abnormal", payload={"error_code"=REFUEL::ERROR_MILEAGE})
      */
-    private $mileage;
+    private ?int $mileage;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="refuels")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $product;
+    private ?Product $product;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
      */
-    private $creationDate;
+    private ?\DateTimeInterface $creationDate;
 
     /**
      * @ORM\JoinColumn(nullable=false)
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="refuels")
      */
-    private $creatorUser;
+    private ?User $creatorUser;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $modificationDate;
+    private ?\DateTimeInterface $modificationDate;
 
     /**
      * @ORM\JoinColumn(nullable=true)
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="modifiedRefuels")
      */
-    private $modifierUser;
+    private ?User $modifierUser;
 
     public function getId(): ?int
     {

@@ -24,13 +24,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class UserController extends AbstractController
 {
-    private $passwordEncoder;
-    private $user_user_name;
-    private $user_login_name;
-    private $user_email_name;
-    private $user_password_name;
-    private $user_isadmin_name;
-    private $user_homeagency_name;
+    private UserPasswordEncoderInterface $passwordEncoder;
+    private string $user_user_name;
+    private string $user_login_name;
+    private string $user_email_name;
+    private string $user_password_name;
+    private string $user_isadmin_name;
+    private string $user_homeagency_name;
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder, $user_user_name, $user_login_name, $user_email_name, $user_password_name, $user_isadmin_name, $user_homeagency_name){
         $this->passwordEncoder = $passwordEncoder;

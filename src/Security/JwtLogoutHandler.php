@@ -9,7 +9,7 @@ use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
 
 class JwtLogoutHandler implements LogoutSuccessHandlerInterface
 {
-    private $manager;
+    private EntityManagerInterface $manager;
     public function __construct(EntityManagerInterface $manager)
     {
         $this->manager=$manager;

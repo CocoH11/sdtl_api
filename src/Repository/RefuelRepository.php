@@ -32,11 +32,10 @@ class RefuelRepository extends ServiceEntityRepository
     }
 
     public function getNbRefuels(){
-        $query = $this->createQueryBuilder('p')
+        return $this->createQueryBuilder('p')
             ->select('count(p.id)')
             ->getQuery()
             ->getSingleScalarResult();
-        return $query;
     }
 
     // /**

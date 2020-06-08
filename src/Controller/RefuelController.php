@@ -25,17 +25,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class RefuelController extends AbstractController
 {
-    private $refuel_refuel_name;
-    private $refuel_refuels_name;
-    private $refuel_volume_name;
-    private $refuel_codecard_name;
-    private $refuel_codedriver_name;
-    private $refuel_system_name;
-    private $refuel_date_name;
-    private $refuel_stationlocation_name;
-    private $refuel_mileage_name;
-    private $refuel_product_name;
-    private $limit;
+    private string $refuel_refuel_name;
+    private string $refuel_refuels_name;
+    private string $refuel_volume_name;
+    private string $refuel_codecard_name;
+    private string $refuel_codedriver_name;
+    private string $refuel_system_name;
+    private string $refuel_date_name;
+    private string $refuel_stationlocation_name;
+    private string $refuel_mileage_name;
+    private string $refuel_product_name;
+    private int $limit;
 
     public function __construct(string $refuel_refuel_name, string $refuel_refuels_name, string $refuel_volume_name, string $refuel_codecard_name, string $refuel_codedriver_name, string $refuel_system_name, string $refuel_date_name, string $refuel_stationlocation_name, string $refuel_mileage_name, string $refuel_product_name, int $limit)
     {
@@ -150,24 +150,24 @@ class RefuelController extends AbstractController
     }
 
     /**
-     * @Route("/refuel/{id}", name="deleteRefuel", methods={"DELETE"})
+     * @Route("refuel/{id}", name="deleteRefuel", methods={"DELETE"})
      * @ParamConverter(name="refuel", class="App:Refuel")
      * @param Request $request
      * @param Refuel $refuel
      * @return JsonResponse
      */
     public function deleteRefuel(Request $request, Refuel $refuel){
+        /*var_dump($refuel);
         $this->getDoctrine()->getManager()->remove($refuel);
-        $this->getDoctrine()->getManager()->flush();
+        $this->getDoctrine()->getManager()->flush();*/
         return new JsonResponse($refuel);
     }
 
     /**
-     * @Route("/refuel/{id}", name="updateRefuel", methods={"PUT"})
+     * @Route("refuel/{id}", name="updateRefuel", methods={"PUT"})
      * @ParamConverter(name="refuel", class="App:Refuel")
      * @param Request $request
      * @param Refuel $refuel
-     * @param ValidatorInterface $validator
      * @return JsonResponse
      */
     public function updateRefuel(Request $request,Refuel $refuel, ValidatorInterface $validator){

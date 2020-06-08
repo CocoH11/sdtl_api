@@ -18,16 +18,16 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class LoginAuthenticator extends AbstractGuardAuthenticator
 {
-    private $passwordEncoder;
-    private $refreshStatus=false;
-    private $manager;
-    private $jwt_secret;
-    private $jwt_domain;
-    private $jwt_path;
-    private $jwt_access_name;
-    private $jwt_refresh_name;
-    private $user_login_name;
-    private $user_password_name;
+    private UserPasswordEncoderInterface $passwordEncoder;
+    private bool $refreshStatus=false;
+    private EntityManagerInterface $manager;
+    private string $jwt_secret;
+    private string $jwt_domain;
+    private string $jwt_path;
+    private string $jwt_access_name;
+    private string $jwt_refresh_name;
+    private string $user_login_name;
+    private string $user_password_name;
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $manager, $jwt_secret, $jwt_domain, $jwt_path, $jwt_access_name, $jwt_refresh_name, $user_login_name, $user_password_name)
     {

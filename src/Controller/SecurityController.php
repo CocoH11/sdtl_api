@@ -13,11 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SecurityController extends AbstractController
 {
-    private $jwt_secret;
-    private $jwt_path;
-    private $jwt_domain;
-    private $jwt_access_name;
-    private $jwt_refresh_name;
+    private string $jwt_secret;
+    private string $jwt_path;
+    private string $jwt_domain;
+    private string $jwt_access_name;
+    private string $jwt_refresh_name;
     public function __construct($jwt_secret, $jwt_path, $jwt_domain, $jwt_access_name, $jwt_refresh_name)
     {
         $this->jwt_secret=$jwt_secret;

@@ -9,9 +9,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class FileUploader
 {
-    private $targetDirectory;
-    private $slugger;
-    private $filesystem;
+    private string $targetDirectory;
+    private SluggerInterface $slugger;
+    private Filesystem $filesystem;
 
     public function __construct($targetDirectory, SluggerInterface $slugger, Filesystem $filesystem)
     {
