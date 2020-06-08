@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Homeagency;
 use App\Entity\Product;
 use App\Entity\Refuel;
 use App\Entity\User;
 use App\Entity\System;
 use App\Service\FileExtractData;
 use App\Service\FileUploader;
+use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -105,9 +107,10 @@ class RefuelController extends AbstractController
      * @Route("/refuels", name="addRefuels", methods={"PUT"})
      * @param Request $request
      * @param ValidatorInterface $validator
+     * @param FileExtractData $fileExtractData
      * @return JsonResponse
      */
-    public function addRefuels(Request $request, ValidatorInterface $validator): JsonResponse
+    public function addRefuels(Request $request, ValidatorInterface $validator, FileExtractData $fileExtractData): JsonResponse
     {
         $data=json_decode($request->getContent(), true);
         $homeagency=$this->checkHomeAgency();
@@ -120,26 +123,10 @@ class RefuelController extends AbstractController
             $date=\DateTime::createFromFormat("Y-m-dH:m:s", $refuel[$this->refuel_date_name]);
             $creationDate=new \DateTime("now");
             if (!$date)$date=null;
-            $newrefuel=new Refuel();
-            $newrefuel->setCodeCard($refuel[$this->refuel_codecard_name]);
-            $newrefuel->setCodeDriver($refuel[$this->refuel_codedriver_name]);
-            $newrefuel->setVolume($refuel[$this->refuel_volume_name]);
-            $newrefuel->setMileage($refuel[$this->refuel_mileage_name]);
-            $newrefuel->setStationLocation($refuel[$this->refuel_stationlocation_name]);
-            $newrefuel->setDate($date);
-            $newrefuel->setProduct($product);
-            $newrefuel->setSystem($system);
-            $newrefuel->setCreatorUser($user);
-            $newrefuel->setCreationDate($creationDate);
-            $newrefuel->setHomeagency($homeagency);
+            $newrefuel= $this->createRefuel($refuel[$this->refuel_stationlocation_name], $date, $refuel[$this->refuel_codecard_name], $refuel[$this->refuel_codedriver_name], $refuel[$this->refuel_volume_name], $product, $refuel[$this->refuel_mileage_name], $system, $homeagency, $user, $creationDate);
             $errors=$validator->validate($newrefuel);
-            if (count($errors)>0) {
-                $tab_errors = [];
-                for ($i = 0; $i < count($errors); $i++) {
-                    array_push($tab_errors, $errors->get($i)->getMessage());
-                }
-                array_push($refuelserrors, [$numLine, $tab_errors]);
-            }else $this->getDoctrine()->getManager()->persist($newrefuel);
+            if (count($errors)>0)array_push($refuelserrors, $fileExtractData->buildErrorsTab($errors, $numLine));
+            else $this->getDoctrine()->getManager()->persist($newrefuel);
             $numLine++;
         }
         $this->getDoctrine()->getManager()->flush();
@@ -150,27 +137,28 @@ class RefuelController extends AbstractController
     }
 
     /**
-     * @Route("refuel/{id}", name="deleteRefuel", methods={"DELETE"})
+     * @Route("/refuel/{id}", name="deleteRefuel", methods={"DELETE"})
      * @ParamConverter(name="refuel", class="App:Refuel")
      * @param Request $request
      * @param Refuel $refuel
      * @return JsonResponse
      */
     public function deleteRefuel(Request $request, Refuel $refuel){
-        /*var_dump($refuel);
         $this->getDoctrine()->getManager()->remove($refuel);
-        $this->getDoctrine()->getManager()->flush();*/
-        return new JsonResponse($refuel);
+        $this->getDoctrine()->getManager()->flush();
+        return new JsonResponse("hello");
     }
 
     /**
-     * @Route("refuel/{id}", name="updateRefuel", methods={"PUT"})
+     * @Route("/refuel/{id}", name="updateRefuel", methods={"PUT"})
      * @ParamConverter(name="refuel", class="App:Refuel")
      * @param Request $request
      * @param Refuel $refuel
+     * @param ValidatorInterface $validator
+     * @param FileExtractData $fileExtractData
      * @return JsonResponse
      */
-    public function updateRefuel(Request $request,Refuel $refuel, ValidatorInterface $validator){
+    public function updateRefuel(Request $request,Refuel $refuel, ValidatorInterface $validator, FileExtractData $fileExtractData){
         $refueldata=json_decode($request->getContent(), true)[$this->refuel_refuel_name];
         if (isset($refueldata[$this->refuel_volume_name]))$refuel->setVolume($refueldata[$this->refuel_volume_name]);
         if (isset($refueldata[$this->refuel_codecard_name]))$refuel->setCodeCard($refueldata[$this->refuel_codecard_name]);
@@ -195,11 +183,8 @@ class RefuelController extends AbstractController
         $refuel->setModificationDate($modificationdate);
         $errors=$validator->validate($refuel);
         $tab_errors = [];
-        if (count($errors)>0) {
-            for ($i = 0; $i < count($errors); $i++) {
-                array_push($tab_errors, $errors->get($i)->getMessage());
-            }
-        }else {
+        if (count($errors)>0)$tab_errors=$fileExtractData->buildErrorsTab($errors, 1);
+        else {
             $this->getDoctrine()->getManager()->persist($refuel);
             $this->getDoctrine()->getManager()->flush();
         }
@@ -228,21 +213,20 @@ class RefuelController extends AbstractController
         $newFileName=$fileUploader->upload($homeagency, $system, $filedata, $fileExtension);
         /*Extract Data*/
         $file=new File($newFileName);
-        $refuelserrors=$fileExtractData->extractDataFromFile($file, $system, $homeagency, $user, $creationdate);
-        if (count($refuelserrors)==0)$message="Tout s'est bien passé";
+        $dataextracted=$fileExtractData->extractDataFromFile($file, $system, $homeagency, $user, $creationdate);
+
+        if (count($dataextracted)==0)$message="Tout s'est bien passé";
         else $message="Il y a des erreurs dans le fichier";
-        return new JsonResponse([$message, $refuelserrors]);
+        return new JsonResponse([$message, $dataextracted]);
     }
 
     public function checkSystem(int $sysValue){
-        $system=$this->getDoctrine()->getRepository(System::class)->find($sysValue);
-        return $system;
+        return $this->getDoctrine()->getRepository(System::class)->find($sysValue);
     }
 
     public function checkHomeAgency(){
         $user= $this->getDoctrine()->getRepository(User::class)->find($this->getUser());
-        $homeagency=$user->getHomeAgency();
-        return $homeagency;
+        return $user->getHomeAgency();
     }
 
     public function checkMimeType(File $file){
@@ -259,5 +243,22 @@ class RefuelController extends AbstractController
                 break;
         }
         return $mediaType;
+    }
+
+    public function createRefuel(string $stationlocation, DateTime $date, string $codecard, string $codedriver, float $volume, Product $product, int $mileage, System $system, Homeagency $homeagency, User $user, DateTime $creationdate): Refuel{
+        $newrefuel=new Refuel();
+        $newrefuel
+            ->setCodeCard($codecard)
+            ->setCodeDriver($codedriver)
+            ->setDate($date)
+            ->setVolume($volume)
+            ->setMileage($mileage)
+            ->setProduct($product)
+            ->setStationLocation($stationlocation)
+            ->setHomeagency($homeagency)
+            ->setCreatorUser($user)
+            ->setCreationDate($creationdate)
+            ->setSystem($system);
+        return $newrefuel;
     }
 }

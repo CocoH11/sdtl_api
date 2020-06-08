@@ -4,6 +4,7 @@
 namespace App\Service;
 
 
+use App\Controller\RefuelController;
 use App\Entity\Homeagency;
 use App\Entity\Product;
 use App\Entity\Refuel;
@@ -23,38 +24,38 @@ class FileExtractData
 {
     private EntityManagerInterface $manager;
     private ValidatorInterface $validator;
-
-    public function __construct(EntityManagerInterface $manager, ValidatorInterface $validator)
+    private RefuelController $refuelcontroller;
+    public function __construct(EntityManagerInterface $manager, ValidatorInterface $validator, RefuelController $refuelController)
     {
         $this->manager=$manager;
         $this->validator=$validator;
-
+        $this->refuelcontroller=$refuelController;
     }
 
     public function extractDataFromFile(File $file, System $system, Homeagency $homeagency, User $user, DateTime $creationdate)
     {
-        $refuelserrors=array();
+        $dataextracted=array();
         switch ($system->getName()){
             case "as24":
-                return $this->extractDataFromFileAS24($file, $system, $homeagency, $refuelserrors, $user, $creationdate);
+                return $this->extractDataFromFileAS24($file, $system, $homeagency, $dataextracted, $user, $creationdate);
                 break;
             case "dkv":
-                return$this->extractDataFromFileDKV($file, $system, $homeagency, $refuelserrors, $user, $creationdate);
+                return$this->extractDataFromFileDKV($file, $system, $homeagency, $dataextracted, $user, $creationdate);
                 break;
             case "uta":
-                return $this->extractDataFromFileUTA($file, $system, $homeagency, $refuelserrors, $user, $creationdate);
+                return $this->extractDataFromFileUTA($file, $system, $homeagency, $dataextracted, $user, $creationdate);
                 break;
             case "ids":
-                return $this->extractDataFromFileIDS($file, $system, $homeagency, $refuelserrors, $user, $creationdate);
+                return $this->extractDataFromFileIDS($file, $system, $homeagency, $dataextracted, $user, $creationdate);
                 break;
             case "laffon":
-                return $this->extractDataFromFileLAFFON($file, $system, $homeagency, $refuelserrors, $user, $creationdate);
+                return $this->extractDataFromFileLAFFON($file, $system, $homeagency, $dataextracted, $user, $creationdate);
                 break;
             case "tokheim":
-                return $this->extractDataFromFileTOKHEIM($file, $system, $homeagency, $refuelserrors, $user, $creationdate);
+                return $this->extractDataFromFileTOKHEIM($file, $system, $homeagency, $dataextracted, $user, $creationdate);
                 break;
         }
-        return $refuelserrors;
+        return $dataextracted;
 
     }
 
@@ -72,7 +73,7 @@ class FileExtractData
                 $volume=floatval(substr($line[2], 0, 4).".".substr($line[2], 4, 2));
                 $stationlocation=substr($line[0], 13, strlen($line[0])-12);
                 $mileage=intval(substr($line[2], 100, 9));
-                $newrefuel=$this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
+                $newrefuel=$this->refuelcontroller->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
@@ -107,7 +108,7 @@ class FileExtractData
                 $volume=floatval($sheet->getCell("O".$i)->getValue());
                 $mileage=floatval($sheet->getCell("J".$i)->getValue());
                 $stationlocation=$sheet->getCell("E".$i)->getValue();
-                $newrefuel=$this->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
+                $newrefuel=$this->refuelcontroller->createRefuel($stationlocation, $date, $codecard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
@@ -145,7 +146,7 @@ class FileExtractData
                 $mileage=intval($sheet->getCell("H".$numLine)->getValue());
                 if (strval($sheet->getCell("D".$numLine)->getValue())==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name", "ADBLUE"]);
-                $newrefuel=$this->createRefuel($homeagency->getName(), $date, $numcard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
+                $newrefuel=$this->refuelcontroller->createRefuel($homeagency->getName(), $date, $numcard, $codedriver, $volume, $product, $mileage, $system, $homeagency, $user, $creationdate);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
@@ -169,7 +170,7 @@ class FileExtractData
                 $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[5].$buffer[6]);
                 if ($buffer[0]==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
-                $newrefuel=$this->createRefuel($homeagency->getName(), $date, $buffer[1], $buffer[4], floatval($buffer[7]), $product, intval($buffer[2]), $system, $homeagency, $user, $creationdate);
+                $newrefuel=$this->refuelcontroller->createRefuel($homeagency->getName(), $date, $buffer[1], $buffer[4], floatval($buffer[7]), $product, intval($buffer[2]), $system, $homeagency, $user, $creationdate);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
@@ -197,7 +198,7 @@ class FileExtractData
                 $date=DateTime::createFromFormat("d/m/YH:i:s", $buffer[13].$buffer[14]);
                 if ($buffer[28]==$system->getDieselFileLabel())$product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"DIESEL"]);
                 else $product=$this->manager->getRepository(Product::class)->findOneBy(["name"=>"ADBLUE"]);
-                $newrefuel=$this->createRefuel($buffer[9], $date, $buffer[12], $buffer[16], floatval($buffer[29]), $product,  $buffer[15], $system, $homeagency, $user, $creationdate);
+                $newrefuel=$this->refuelcontroller->createRefuel($buffer[9], $date, $buffer[12], $buffer[16], floatval($buffer[29]), $product,  $buffer[15], $system, $homeagency, $user, $creationdate);
                 $errors=$this->validator->validate($newrefuel);
                 if (count($errors)>0)array_push($refuelserrors, $this->buildErrorsTab($errors, $numLine));
                 else $this->manager->persist($newrefuel);
@@ -230,23 +231,6 @@ class FileExtractData
         }
 
         return $tab_errors;
-    }
-
-    public function createRefuel(String $stationlocation, DateTime $date, String $codecard, String $codedriver, Float $volume, Product $product, int $mileage, System $system, Homeagency $homeagency, User $user, DateTime $creationdate): Refuel{
-        $newrefuel=new Refuel();
-        $newrefuel
-            ->setCodeCard($codecard)
-            ->setCodeDriver($codedriver)
-            ->setDate($date)
-            ->setVolume($volume)
-            ->setMileage($mileage)
-            ->setProduct($product)
-            ->setStationLocation($stationlocation)
-            ->setHomeagency($homeagency)
-            ->setCreatorUser($user)
-            ->setCreationDate($creationdate)
-            ->setSystem($system);
-        return $newrefuel;
     }
 
 }
